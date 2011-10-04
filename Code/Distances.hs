@@ -1,13 +1,10 @@
-module Distances (
-	toDist,
-	hamDist,
-	ham
-) where
+module Distances
+where
 
-import DNA(..)
+import DNA
 
 totDist :: DNA -> [NukeTide] -> Int
-totDist dna v = min . map (hamDist v) $ dna
+totDist dna v = undefined -- min . map (hamDist v) $ dna
 
 hamDist :: [NukeTide] -> DNA -> Int
 hamDist v s' = sum . map (ham v) $ s'
