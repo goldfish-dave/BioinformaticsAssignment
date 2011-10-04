@@ -22,7 +22,7 @@ bfMedSerch dna l = fst $ ms tree ([],infinity)
 		testWord (w,d) (w',d')
 			| d < d' = (w,d)
 			| otherwise = (w',d')
-		tDist = totDist dna
+		tDist = totDist dna l
 
 simpMedSerch = undefined
 
