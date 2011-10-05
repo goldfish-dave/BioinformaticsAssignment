@@ -18,7 +18,7 @@ case $1 in
 	echo Done.
 	;;
 "-h")
-	help="[Usage]: Compiles main. \n\t -llvm \t Compile with llvm (you will need this installed) \n\t -c \t Clean object and interface files \n\t -C \t Clean object, interface and main files \n\t -h \t Help"
+	help="[Usage]: This makefile compiles main. \n\t -llvm \t Compile with llvm (you will need this installed) \n\t -c \t Clean object and interface files \n\t -C \t Clean object, interface and main files \n\t -h \t Help"
 	echo -e $help
 esac
 

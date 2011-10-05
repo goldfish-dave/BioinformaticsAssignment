@@ -1,3 +1,8 @@
-Usyd COMP3456 Bioninformatics assignment involving parallel STM motif finding algorithm via the use of Median String Search
+
+Usyd COMP3456 Bioninformatics assignment involving parallel STM motif finding 
+algorithm via the use of Median String Search.
 
 Author: Dave Wilcox
+
+COMMANDS:
+	Code/Makefile -h 
