@@ -24,15 +24,15 @@ bfMedSerch dna l = fst $ ms tree ([],infinity)
 			| otherwise = (w',d')
 		tDist = totDist dna l
 
-simpMedSerch = undefined
+		simpMedSerch = undefined
 
-bnbMedSerch = undefined
+		bnbMedSerch = undefined
 
-searchTree :: Int -> Tree [NukeTide]
-searchTree n 
-	| n < 0 = error "searchTree: must use positive n!"
-	| otherwise = unfoldTree seed ([],n)
-	where
+		searchTree :: Int -> Tree [NukeTide]
+		searchTree n 
+			| n < 0 = error "searchTree: must use positive n!"
+			| otherwise = unfoldTree seed ([],n)
+			where
 		seed (nk, 0) = (nk, [])
 		seed (nk, i) = (nk, map (\x -> nk ++ [x]) [A,T,C,G] `zip` [i-1,i-1..])
 
