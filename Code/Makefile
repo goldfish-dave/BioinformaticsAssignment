@@ -17,6 +17,14 @@ case $1 in
 	rm *.o *.hi main
 	echo Done.
 	;;
+"-p")
+	echo Compiling profiling
+	flags="--make -O2 main -prof -auto-all -rtsopts"
+	if [ $2 = "-llvm" ]; then
+		flags=" -fllvm "$flags
+	fi
+	ghc $flags
+	;;
 "-h")
 	help="[Usage]: This makefile compiles main. \n\t -llvm \t Compile with llvm (you will need this installed) \n\t -c \t Clean object and interface files \n\t -C \t Clean object, interface and main files \n\t -h \t Help"
 	echo -e $help

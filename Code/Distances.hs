@@ -4,6 +4,7 @@ where
 import DNA
 import MotifTrees
 
+
 hammingDistance :: Motif -> Motif -> Int
 hammingDistance [] [] = 0
 hammingDistance xs [] = length xs
@@ -14,8 +15,13 @@ hammingDistance (x:xs) (y:ys) = case (x == y) of
 
 bestOf :: BestWord -> BestWord -> BestWord
 bestOf bw@(motif, score) bw'@(motif', score')
-	| score > score' = bw
+	| score < score' = bw
 	| otherwise      = bw'
+
+compareMotifs :: (Motif -> Int) -> Motif -> Motif -> Ordering
+compareMotifs totalDistance motif motif' = compare score score'
+	where
+		(score, score') = (totalDistance motif, totalDistance motif')
 
 scoreFunction :: DNA -> Int -> (Motif -> Int)
 scoreFunction dna l = totalDistance

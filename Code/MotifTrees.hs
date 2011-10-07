@@ -4,29 +4,16 @@ where
 import DNA
 import Data.Tree
 import Data.Foldable
+import Data.Traversable
 import Prelude hiding (foldr)
 
-
-type BestWord = (Motif, Int)  -- (BestWord, BestDistance)
-		    				  -- Used to represent a motif and its score
--- newtype BestWord = BestWord (Motif, Int)
--- It would be nice to have BestWord as a newtype if I could
--- think of a clean way to define an Ordering on them
-
-type BranchShoot = (Int, Motif) -- (Motif length, Motif)
-                                -- Used to represent a (possibly incomplete) motif
-								-- in a search tree.
-
--- NB: BestWord and BranchShoot hold the same datatypes
--- but are made distinct because their purposes are different.
-
 newtype SimpleMotifTree a = SMTree (Tree a) deriving (Show, Eq)
+
 -- When folding over a simple motif tree only the leaf nodes
 -- are included.
-
 instance Foldable SimpleMotifTree where
-	foldr _ b (SMTree (Node _ [])) = b
-	foldr f b (SMTree (Node x xs)) = foldr (\x y -> foldr f y x) b xs
+	foldr f b (SMTree (Node x [])) = f x b
+	foldr f b (SMTree (Node _ xs)) = foldr (\j k -> foldr f k (SMTree j)) b xs
 
 searchTree :: Int -> Tree Motif
 -- This function takes a motif length l and returns a
@@ -45,3 +32,11 @@ searchTree l
 				branchShoots = nextLevel `zip` newMotifs
 			in	(motif, branchShoots)
 		seed = (l, []) -- [] represents a motif of length 0
+
+testTree = Node 5 [
+			Node 3 [
+			 Node 1 [],
+			 Node 6 []],
+			Node 9 [
+			 Node 8 [],
+			 Node 10 [Node 0 []]]]

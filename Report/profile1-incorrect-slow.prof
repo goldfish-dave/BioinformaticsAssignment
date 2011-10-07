@@ -1,0 +1,38 @@
+	Sat Oct  8 00:40 2011 Time and Allocation Profiling Report  (Final)
+
+	   main +RTS -p -RTS
+
+	total time  =        1.08 secs   (54 ticks @ 20 ms)
+	total alloc = 5,840,238,536 bytes  (excludes profiling overheads)
+
+COST CENTRE                    MODULE               %time %alloc
+
+hammingDistance                Distances             59.3   18.7
+scoreFunction                  Distances             40.7   80.6
+
+
+                                                                                               individual    inherited
+COST CENTRE              MODULE                                               no.    entries  %time %alloc   %time %alloc
+
+MAIN                     MAIN                                                   1           0   0.0    0.0   100.0  100.0
+ main                    Main                                                 282           2   0.0    0.0   100.0  100.0
+  readDNA                DNA                                                  287           1   0.0    0.0     0.0    0.0
+   readLine              DNA                                                  288           7   0.0    0.0     0.0    0.0
+  simpMedSearch          MedianSearch                                         284           1   0.0    0.1   100.0  100.0
+   bestOf                Distances                                            290       65536   0.0    0.0     0.0    0.0
+   scoreFunction         Distances                                            286       65536  40.7   80.6   100.0   99.2
+    hammingDistance      Distances                                            289   136249344  59.3   18.7    59.3   18.7
+   searchTree            MotifTrees                                           285           1   0.0    0.6     0.0    0.6
+ CAF                     Main                                                 276           2   0.0    0.0     0.0    0.0
+  main                   Main                                                 283           0   0.0    0.0     0.0    0.0
+ CAF                     Data.Typeable                                        274           2   0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Exception                                     268           4   0.0    0.0     0.0    0.0
+ CAF                     Text.Read.Lex                                        242           4   0.0    0.0     0.0    0.0
+ CAF                     Data.HashTable                                       214           3   0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Handle.FD                                     212           2   0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.FD                                            196           2   0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Handle.Internals                              179           1   0.0    0.0     0.0    0.0
+ CAF                     GHC.IO.Encoding.Iconv                                173           2   0.0    0.0     0.0    0.0
+ CAF                     GHC.Conc.Signal                                      166           1   0.0    0.0     0.0    0.0
+ CAF                     MedianSearch                                         143           1   0.0    0.0     0.0    0.0
+  infinity               MedianSearch                                         291           1   0.0    0.0     0.0    0.0
