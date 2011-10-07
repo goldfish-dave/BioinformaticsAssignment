@@ -74,7 +74,7 @@ simpMedSerch :: DNA -> Int -> Motif
 -- Takes an n x t array of nucleotides and a length l
 -- and outputs the most likely motif of length l
 -- NB: This function does not implement branch and bounding
-simpMedSerch = undefined
+simpMedSerch = foldr (bestOf . totalScore) ([], infinity) . searchTree
 	where
 		ms :: Tree [NukeTide] -> BestWord -> BestWord
 		ms (Node x []) b@(bw,bd)       -- Leaf node
