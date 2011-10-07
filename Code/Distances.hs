@@ -2,6 +2,7 @@ module Distances
 where
 
 import DNA
+import MotifTrees
 
 hammingDistance :: Motif -> Motif -> Int
 hammingDistance [] [] = 0
@@ -23,5 +24,5 @@ scoreFunction dna l = totalDistance
 		totalDistance motif = minimum $  map (minimum . map (hammingDistance motif) . motifs l) dna
 
 		motifs :: Int -> [NukeTide] -> [Motif]
-		motifs l nukeTids = [ take l $ drop n nukeTids | n <- [0..length nukeTides - l] ]
+		motifs l nukeTides = [ take l $ drop n nukeTides | n <- [0..length nukeTides - l] ]
 

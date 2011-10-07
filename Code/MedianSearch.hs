@@ -4,34 +4,21 @@ where
 import Distances
 import DNA
 import MotifTrees
+import Data.Foldable
 
 infinity = 1000 :: Int
 
-
-bfMedSerch :: DNA -> Int -> [NukeTide]
-bfMedSerch dna l = fst $ ms tree ([],infinity)
+simpMedSerch :: DNA -> Int -> Motif
+-- Takes an n x t array of nucleotides and a length l
+-- and outputs the most likely motif of length l
+-- NB: This function does not implement branch and bounding
+simpMedSerch dna l = minimumBy (bestOf . bestWord) simpleTree
 	where
-		tree = searchTree l
+		totalDistance = scoreFunction dna l
 
-		ms :: Tree [NukeTide] -> ([NukeTide],Int) -> ([NukeTide],Int)
-		ms (Node x []) (bw,bd)
-			| bd' < bd = (x,bd')
-			| otherwise = (bw,bd)
-			where bd' = tDist x
-		ms (Node _ xs) bwd = foldr (\a b -> testWord (ms a b) b) bwd xs
+		bestWord word = (word, totalDistance word)
 
-		testWord (w,d) (w',d')
-			| d < d' = (w,d)
-			| otherwise = (w',d')
-		tDist = totDist dna l
-
-		searchTree :: Int -> Tree [NukeTide]
-		searchTree n 
-			| n < 0 = error "searchTree: must use positive n!"
-			| otherwise = unfoldTree seed ([],n)
-			where
-		seed (nk, 0) = (nk, [])
-		seed (nk, i) = (nk, map (\x -> nk ++ [x]) [A,T,C,G] `zip` [i-1,i-1..])
+		simpleTree = SMTree $ searchTree l
 
 {-
 simpMedSerch :: DNA -> Int -> Motif

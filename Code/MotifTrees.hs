@@ -20,13 +20,13 @@ type BranchShoot = (Int, Motif) -- (Motif length, Motif)
 -- NB: BestWord and BranchShoot hold the same datatypes
 -- but are made distinct because their purposes are different.
 
-newtype SimpleMotifTree a = MTree (Tree a) deriving (Show, Eq)
+newtype SimpleMotifTree a = SMTree (Tree a) deriving (Show, Eq)
 -- When folding over a simple motif tree only the leaf nodes
 -- are included.
 
 instance Foldable SimpleMotifTree where
-	foldr _ b (MTree (Node _ [])) = b
-	foldr f b (MTree (Node x xs)) = foldr (\x y -> foldr f y x) b xs
+	foldr _ b (SMTree (Node _ [])) = b
+	foldr f b (SMTree (Node x xs)) = foldr (\x y -> foldr f y x) b xs
 
 searchTree :: Int -> Tree Motif
 -- This function takes a motif length l and returns a
