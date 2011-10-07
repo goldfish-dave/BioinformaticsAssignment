@@ -70,7 +70,7 @@ bfMedSerch dna l = fst $ ms tree ([],infinity)
 		seed (nk, i) = (nk, map (\x -> nk ++ [x]) [A,T,C,G] `zip` [i-1,i-1..])
 
 {-
-simpMedSerch :: DNA -> Int -> [NukeTide]
+simpMedSerch :: DNA -> Int -> Motif
 -- Takes an n x t array of nucleotides and a length l
 -- and outputs the most likely motif of length l
 -- NB: This function does not implement branch and bounding
@@ -83,5 +83,31 @@ simpMedSerch = undefined
 		ms (Node _ xs) b@(bw,bd) = foldr (\node currBest -> bestOf (ms node currBest) currBest) b xs
 		-- The above line performs depth-first ms over all the children nodes,
 		-- returning the best BestWord
+{-
+- a median search function needs a totalDistance function
+-	it returns a motif
+- a totalDistance function needs a DNA and takes a motif
+-	it returns a distance
+
+medianSearch :: DNA -> Int -> Motif
+medianSearch = 
+bnbMedianSearch = branchAndBound searchTree totalDistance
+	where
+		totalDistance :: Motif -> Int
+
+branchAndBound :: Tree a -> (a -> Int) -> a
+-}
+
+
+
+
+
+
+
+
+
+
+
+
 
 -}
