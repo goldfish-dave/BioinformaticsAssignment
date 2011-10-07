@@ -3,16 +3,25 @@ where
 
 import DNA
 
-totDist :: DNA -> Int -> [NukeTide] -> Int
-totDist dna l v = minimum $ map (\line -> minimum [ ham v s | s <- possibles line ]) dna
-	where
-		possibles string = [ take l $ drop i string | i <- [0 .. length string] ]
+hammingDistance :: Motif -> Motif -> Int
+hammingDistance [] [] = 0
+hammingDistance xs [] = length xs
+hammingDistance [] ys = length ys
+hammingDistance (x:xs) (y:ys) = case (x == y) of
+	True  -> hammingDistance xs ys
+	False -> 1 + hammingDistance xs ys
 
-ham :: [NukeTide] -> [NukeTide] -> Int
-ham [] [] = 0
-ham xs [] = length xs
-ham [] ys = length ys
-ham (x:xs) (y:ys) = case (x == y) of
-	True  -> ham xs ys
-	False -> 1 + ham xs ys
+bestOf :: BestWord -> BestWord -> BestWord
+bestOf bw@(motif, score) bw'@(motif', score')
+	| score > score' = bw
+	| otherwise      = bw'
+
+scoreFunction :: DNA -> Int -> (Motif -> Int)
+scoreFunction dna l = totalDistance
+	where
+		-- TODO: comment/clarify this
+		totalDistance motif = minimum $  map (minimum . map (hammingDistance motif) . motifs l) dna
+
+		motifs :: Int -> [NukeTide] -> [Motif]
+		motifs l nukeTids = [ take l $ drop n nukeTids | n <- [0..length nukeTides - l] ]
 
