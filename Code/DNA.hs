@@ -1,8 +1,11 @@
 module DNA
 where
 
+import Data.Tree
+
 data NukeTide = A | T | C | G deriving (Read, Show, Eq, Ord, Enum)
 
+type Motif = [NukeTide] -- Not all [NukeTide] are motifs, could be confusing
 type DNA = [[NukeTide]]
 
 readLine :: String -> [NukeTide]
