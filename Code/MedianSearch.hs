@@ -21,6 +21,13 @@ simpMedSearch dna l = fst $ foldr' (bestOf . bestWord) ([],infinity) simpleTree
 
 		simpleTree = SMTree $ searchTree l
 
+debugMedSearch dna l = foldr' (\a b -> ((bestOf . bestWord) a (head b)) : b ) [([],infinity)] simpleTree
+	where
+		totalDistance = scoreFunction dna l
+
+		bestWord word = (word, totalDistance word)
+
+		simpleTree = SMTree $ searchTree l
 {-
 - a median search function needs a totalDistance function
 -	it returns a motif
