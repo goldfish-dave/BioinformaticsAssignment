@@ -2,18 +2,14 @@ module MotifTrees
 where
 
 import DNA
+import Distances
 import Data.Tree
-import Data.Foldable
-import Data.Traversable
-import Prelude hiding (foldr)
 
-newtype SimpleMotifTree a = SMTree (Tree a) deriving (Show, Eq)
 
--- When folding over a simple motif tree only the leaf nodes
--- are included.
-instance Foldable SimpleMotifTree where
-	foldr f b (SMTree (Node x [])) = f x b
-	foldr f b (SMTree (Node _ xs)) = foldr (\j k -> foldr f k (SMTree j)) b xs
+simpleTraverse :: Tree a -> [a]
+simpleTraverse (Node x []) = [x]
+simpleTraverse (Node _ xs) = concatMap simpleTraverse xs
+
 
 searchTree :: Int -> Tree Motif
 -- This function takes a motif length l and returns a

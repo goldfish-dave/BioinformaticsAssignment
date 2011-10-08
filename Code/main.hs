@@ -14,10 +14,13 @@ main = do
 	fileLines <- fmap lines $ readFile file
 	let dna = readDNA fileLines
 	print $ simpMedSearch dna 8
+	return ()
 
+{-
 res = do
 	fileLines <- fmap lines $ readFile file
 	return $ debugMedSearch (readDNA fileLines) 8
+-}
 
 dna = do
 	fileLines <- fmap lines $ readFile file 

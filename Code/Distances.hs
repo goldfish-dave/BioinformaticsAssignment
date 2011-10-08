@@ -2,12 +2,11 @@ module Distances
 where
 
 import DNA
-import MotifTrees
 
 hammingDistance :: Motif -> Motif -> Int
 hammingDistance [] [] = 0
-hammingDistance xs [] = length xs
-hammingDistance [] ys = length ys
+hammingDistance xs [] = 0 -- optimistic
+hammingDistance [] ys = 0 -- optimistic
 hammingDistance (x:xs) (y:ys) = case (x == y) of
 	True  -> hammingDistance xs ys
 	False -> 1 + hammingDistance xs ys
