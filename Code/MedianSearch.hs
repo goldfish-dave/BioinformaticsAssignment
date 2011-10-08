@@ -6,6 +6,7 @@ import DNA
 import MotifTrees
 import Data.Tree
 import Data.Foldable (minimumBy)
+import Control.Concurrent
 
 infinity = 1000 :: Int
 
@@ -26,16 +27,13 @@ bnbMedSearch dna l = fst $ bnbTraverse totalDistance (searchTree l) ([],infinity
 	where
 		totalDistance = scoreFunction dna l
 
+simpConcMedSearch :: DNA -> Int -> IO Motif
+-- This median search will make a fork for each of the children,
+-- searching the entire tree concurrently. Since it creates a 
+-- new fork for every branch there is likely to be unnecessary 
+-- overhead in this method.
+simpConcMedSearch dna l = undefined
 
-bnbTraverse :: (Motif -> Int) -> Tree Motif -> BestWord -> BestWord
-bnbTraverse totalDistance (Node x []) (motif, score)
-	| score' < score = (x    , score')
-	| otherwise      = (motif, score )
-	where score'  = totalDistance x
-bnbTraverse totalDistance (Node x xs) (motif, score)
-	| score' < score = foldr (bnbTraverse totalDistance) (motif, score) xs
-	| otherwise      = (motif, score)
-	where score' = totalDistance x
 
 {-
 

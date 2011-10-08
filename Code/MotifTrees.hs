@@ -11,6 +11,16 @@ simpleTraverse (Node x []) = [x]
 simpleTraverse (Node _ xs) = concatMap simpleTraverse xs
 
 
+bnbTraverse :: (Motif -> Int) -> Tree Motif -> BestWord -> BestWord
+bnbTraverse totalDistance (Node x []) (motif, score)
+	| score' < score = (x    , score')
+	| otherwise      = (motif, score )
+	where score'  = totalDistance x
+bnbTraverse totalDistance (Node x xs) (motif, score)
+	| score' < score = foldr (bnbTraverse totalDistance) (motif, score) xs
+	| otherwise      = (motif, score)
+	where score' = totalDistance x
+
 searchTree :: Int -> Tree Motif
 -- This function takes a motif length l and returns a
 -- search tree containing all possible motifs of length l
