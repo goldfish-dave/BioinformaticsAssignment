@@ -4,8 +4,8 @@ where
 import Distances
 import DNA
 import MotifTrees
+import Data.Tree
 import Data.Foldable (minimumBy)
-import Prelude hiding (foldr)
 
 infinity = 1000 :: Int
 
@@ -21,20 +21,23 @@ simpMedSearch dna l = fst . minimumBy (\a b -> compare (snd a) (snd b)) $ map be
 
 		motifs = simpleTraverse $ searchTree l
 
-bnbMedSearch :: (Motif -> Int) -> Tree Motif -> BestWord -> BestWord
-bnbMedSearch totalDistance (Node x []) (motif, score)
+bnbMedSearch :: DNA -> Int -> Motif
+bnbMedSearch dna l = fst $ bnbTraverse totalDistance (searchTree l) ([],infinity)
+	where
+		totalDistance = scoreFunction dna l
+
+
+bnbTraverse :: (Motif -> Int) -> Tree Motif -> BestWord -> BestWord
+bnbTraverse totalDistance (Node x []) (motif, score)
 	| score' < score = (x    , score')
 	| otherwise      = (motif, score )
 	where score'  = totalDistance x
-bnbMedSearch totalDistance (Node x xs) (motif, score)
-	| score' < score = foldr (bnbMedSearch totalDistance) (motif, score) xs
+bnbTraverse totalDistance (Node x xs) (motif, score)
+	| score' < score = foldr (bnbTraverse totalDistance) (motif, score) xs
 	| otherwise      = (motif, score)
 	where score' = totalDistance x
+
 {-
-- a median search function needs a totalDistance function
--	it returns a motif
-- a totalDistance function needs a DNA and takes a motif
--	it returns a distance
 
 medianSearch :: DNA -> Int -> Motif
 medianSearch = 

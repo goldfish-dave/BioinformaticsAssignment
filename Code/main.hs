@@ -9,11 +9,12 @@ import Data.Foldable
 import Prelude hiding (foldr)
 
 file = "Data/mine-test.txt"
+--file = "Data/text-book-8-mer.txt"
 
 main = do
 	fileLines <- fmap lines $ readFile file
 	let dna = readDNA fileLines
-	print $ simpMedSearch dna 8
+	print $ bnbMedSearch dna 8
 	return ()
 
 {-
