@@ -10,6 +10,7 @@ import Prelude hiding (foldr)
 
 import Data.IORef
 import Control.Concurrent
+import Control.Concurrent.STM
 
 --file = "Data/mine-test.txt"
 file = "Data/text-book-8-mer.txt"
@@ -23,9 +24,9 @@ main = do
 	let	dna = readDNA fileLines
 		td = scoreFunction dna 8
 		tree = searchTree 8
-	motif <- wrapper td tree
-	print motif
-	print $ bnbMedSearch dna 8
+	wrapper td tree >>= putStrLn . ("Concurrent: " ++) . show
+	wrapper' td tree >>= putStrLn . ("STM: " ++) . show
+	putStrLn $ "Ordinary: " ++ (show . bnbMedSearch dna) 8
 
 	
 

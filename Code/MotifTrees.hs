@@ -10,6 +10,7 @@ import Data.IORef
 import Control.Concurrent
 import Control.Concurrent.STM
 
+
 ---------------------------------------------------------------------
 -- Traversals
 
@@ -58,6 +59,15 @@ cncrtTraverse totalDistance (Node x xs) forkCount best = do
 	then do
 		mapM_ (maybeFork forkCount . \n -> cncrtTraverse totalDistance  n forkCount best) xs
 	else return ()
+
+wrapper' :: (Motif -> Int) -> Tree Motif -> IO Motif
+wrapper' td tree = do
+	forks <- atomically $ newTVar ([],0)
+	best <- atomically $ newTVar ([],100)
+	stmMaybeFork forks $ stmTraverse td tree forks best
+	waitUntil' ((== 0) . snd) forks
+	(motif,_) <- atomically $ readTVar best
+	return motif
 
 stmTraverse :: (Motif -> Int) -> Tree Motif -> TVar ForkRegister -> TVar BestWord -> IO ()
 stmTraverse totalDistance (Node x []) _ best = do
@@ -134,6 +144,14 @@ waitUntil pred ref = do
 	if pred x
 	then return ()
 	else threadDelay 100000 >> waitUntil pred ref
+
+waitUntil' :: (a -> Bool) -> TVar a -> IO ()
+waitUntil' pred tvar = do
+	x <- atomically $ readTVar tvar
+	if pred x
+	then return ()
+	else threadDelay 100000 >> waitUntil' pred tvar
+
 
 -----------------------------------------------------------------------
 -- Tree generation
