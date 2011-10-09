@@ -29,8 +29,7 @@ bnbTraverse totalDistance (Node x xs) (motif, score)
 	| otherwise      = (motif, score)
 	where score' = totalDistance x
 
-type ForkRegister = ([ThreadId],Int)
--- type ForkRegister = Int
+
 -- cncrt Traverse uses concurrency (forkIO and IORef) to run the traverse in concurrent threads
 -- Since IORefs do not have locks it's entirely possibly for things to go wrong
 wrapper :: (Motif -> Int) -> Tree Motif  -> IO Motif
@@ -38,7 +37,7 @@ wrapper td tree = do
 	--forks <- newMVar 0
 	forks <- newMVar ([],0)
 	best <- newIORef ([],100)
-	maybeFork' forks $ cncrtSimpleTraverse td tree forks best
+	maybeFork forks $ cncrtSimpleTraverse td tree forks best
 	waitUntil ((== 0) . snd) forks
 	(motif,score) <- readIORef best
 	return motif
@@ -58,7 +57,7 @@ cncrtSimpleTraverse totalDistance (Node x xs) forkCount best = do
 	if score' < score
 	then do
 		writeIORef best (motif, score)
-		mapM_ (maybeFork' forkCount . \n -> cncrtSimpleTraverse totalDistance  n forkCount best) xs
+		mapM_ (maybeFork forkCount . \n -> cncrtSimpleTraverse totalDistance  n forkCount best) xs
 	else return ()
 
 
@@ -69,11 +68,8 @@ cncrtSimpleTraverse totalDistance (Node x xs) forkCount best = do
 -- Don't make this less than 1
 forkCap = 4 :: Int
 
-incrementCap :: MVar Int -> IO ()
-incrementCap cap = takeMVar cap >>= putMVar cap . (+1) >> return ()
-
-decrementCap :: MVar Int -> IO ()
-decrementCap cap = takeMVar cap >>= putMVar cap . ((-) 1) >> return ()
+type ForkRegister = ([ThreadId],Int)
+-- type ForkRegister = Int
 
 addToRegister :: MVar ([ThreadId],Int) -> IO ()
 addToRegister mvar = do
@@ -87,32 +83,22 @@ popFromRegister mvar = do
 	thisId <- myThreadId
 	putMVar mvar (delete thisId ids, forks-1)
 
-maybeFork :: MVar Int -> IO () -> IO ()
+maybeFork :: MVar ([ThreadId],Int) -> IO () -> IO ()
 -- will run the io action in a new fork unless
 -- the number of forks represented in cap is 
 -- greater than forkCap
-maybeFork cap io = do
-	forksCount <- readMVar cap
-	if forksCount < forkCap
-	then incrementCap cap >> (forkIO $ io >> decrementCap cap) >> return ()
-	else io
-
-maybeFork' :: MVar ([ThreadId],Int) -> IO () -> IO ()
--- will run the io action in a new fork unless
--- the number of forks represented in cap is 
--- greater than forkCap
-maybeFork' reg io = do
+maybeFork reg io = do
 	(_,forksCount) <- readMVar reg
 	if forksCount < forkCap
 	then addToRegister reg >> (forkIO $ io >> popFromRegister reg) >> return ()
 	else io
 
-waitUntil :: (a -> Bool) -> MVar a -> IO a
+waitUntil :: (a -> Bool) -> MVar a -> IO ()
 waitUntil pred ref = do
-	x <- takeMVar ref
+	x <- readMVar ref
 	if pred x
-	then putMVar ref x >> return x
-	else putMVar ref x >> threadDelay 100000 >> waitUntil pred ref
+	then return ()
+	else threadDelay 100000 >> waitUntil pred ref
 
 -----------------------------------------------------------------------
 -- Tree generation
