@@ -16,7 +16,7 @@ file = "Data/text-book-8-mer.txt"
 
 main = do
 --	print $ bnbMedSearch dna 8
---	cncrtSimpleTraverse
+--	cncrtTraverse
 --	(count,best) <-test
 --	readLoop 10 count
 	fileLines <- fmap lines $ readFile file
@@ -46,7 +46,7 @@ test = do
 	best <- newIORef ([],1000)
 	--forksCount <- newMVar 0
 	forksCount <- newMVar ([],0)
-	forkIO $ cncrtSimpleTraverse td tree forksCount best
+	forkIO $ cncrtTraverse td tree forksCount best
 	return (forksCount,best)
 -}
 

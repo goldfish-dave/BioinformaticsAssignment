@@ -37,29 +37,43 @@ wrapper td tree = do
 	--forks <- newMVar 0
 	forks <- newMVar ([],0)
 	best <- newIORef ([],100)
-	maybeFork forks $ cncrtSimpleTraverse td tree forks best
+	maybeFork forks $ cncrtTraverse td tree forks best
 	waitUntil ((== 0) . snd) forks
 	(motif,score) <- readIORef best
 	return motif
 
-cncrtSimpleTraverse :: (Motif -> Int) -> Tree Motif -> MVar ForkRegister -> IORef BestWord -> IO ()
+cncrtTraverse :: (Motif -> Int) -> Tree Motif -> MVar ForkRegister -> IORef BestWord -> IO ()
 -- currently this doesn't return a value, it just modifies a value
-cncrtSimpleTraverse totalDistance (Node x []) _ best = do
-	(motif, score) <- readIORef best
+cncrtTraverse totalDistance (Node x []) _ best = do
 	let score' = totalDistance x
+	(motif, score) <- readIORef best
 	if score' < score
 	then writeIORef best (x    , score') 
 	else return ()
 
-cncrtSimpleTraverse totalDistance (Node x xs) forkCount best = do
-	(motif, score) <- readIORef best
+cncrtTraverse totalDistance (Node x xs) forkCount best = do
 	let score' = totalDistance x
+	(motif, score) <- readIORef best
 	if score' < score
 	then do
-		writeIORef best (motif, score)
-		mapM_ (maybeFork forkCount . \n -> cncrtSimpleTraverse totalDistance  n forkCount best) xs
+		mapM_ (maybeFork forkCount . \n -> cncrtTraverse totalDistance  n forkCount best) xs
 	else return ()
 
+stmTraverse :: (Motif -> Int) -> Tree Motif -> TVar ForkRegister -> TVar BestWord -> IO ()
+stmTraverse totalDistance (Node x []) _ best = do
+	let score' = totalDistance x
+	atomically $ do
+		(_, score) <- readTVar best
+		if score' < score
+		then writeTVar best (x , score')
+		else return ()
+
+stmTraverse totalDistance (Node x xs) forkCount best = do
+	let score' = totalDistance x
+	(_,score) <- atomically $ readTVar best
+	if score' < score
+	then mapM_ (stmMaybeFork forkCount . \n -> stmTraverse totalDistance n forkCount best) xs
+	else return ()
 
 
 ---------------------------------------------------
@@ -83,6 +97,20 @@ popFromRegister mvar = do
 	thisId <- myThreadId
 	putMVar mvar (delete thisId ids, forks-1)
 
+stmAddToReg :: TVar ([ThreadId],Int) -> IO ()
+stmAddToReg tvar = do
+	thisId <- myThreadId
+	atomically $ do
+		(ids, forks) <- readTVar tvar
+		writeTVar tvar (thisId:ids, forks+1)
+
+stmPopFromReg :: TVar ([ThreadId],Int) -> IO ()
+stmPopFromReg tvar = do
+	thisId <- myThreadId
+	atomically $ do
+		(ids,forks) <- readTVar tvar
+		writeTVar tvar (delete thisId ids, forks-1)
+
 maybeFork :: MVar ([ThreadId],Int) -> IO () -> IO ()
 -- will run the io action in a new fork unless
 -- the number of forks represented in cap is 
@@ -91,6 +119,13 @@ maybeFork reg io = do
 	(_,forksCount) <- readMVar reg
 	if forksCount < forkCap
 	then addToRegister reg >> (forkIO $ io >> popFromRegister reg) >> return ()
+	else io
+
+stmMaybeFork :: TVar ForkRegister -> IO () -> IO ()
+stmMaybeFork reg io = do
+	(_,forksCount) <- atomically $ readTVar reg
+	if forksCount < forkCap
+	then stmAddToReg reg >> (forkIO $ io >> stmPopFromReg reg) >> return ()
 	else io
 
 waitUntil :: (a -> Bool) -> MVar a -> IO ()
