@@ -25,8 +25,42 @@ bnbTraverse totalDistance (Node x xs) (motif, score)
 	| otherwise      = (motif, score)
 	where score' = totalDistance x
 
-cncrtSimpleTraverse :: (Motif -> Int) -> Tree Motif -> BestWord -> IO BestWord
-cncrtSimpleTraverse = undefined
+cncrtSimpleTraverse :: (Motif -> Int) -> Tree Motif -> MVar Int -> MVar BestWord -> IO ()
+-- currently this doesn't return a value, it just modifies a value
+cncrtSimpleTraverse totalDistance (Node x []) _ best = do
+	(motif, score) <- takeMVar best
+	let score' = totalDistance x
+	if score' < score
+	then putMVar best (x    , score') >> (putStr $ "New best: " ++ show (x,score'))
+	else putMVar best (motif,  score)
+
+cncrtSimpleTraverse totalDistance (Node x xs) forkCount best = do
+	(motif, score) <- takeMVar best
+	let score' = totalDistance x
+	if score' < score
+	then do
+		putMVar best (motif, score)
+		--print score
+		mapM_ (maybeFork forkCount . \n -> cncrtSimpleTraverse totalDistance  n forkCount best) xs
+	else return ()
+
+forkCap = 0 :: Int
+
+incrementCap :: MVar Int -> IO ()
+incrementCap cap = takeMVar cap >>= putMVar cap . (+1)
+
+decrementCap :: MVar Int -> IO ()
+decrementCap cap = takeMVar cap >>= putMVar cap . ((-) 1)
+
+maybeFork :: MVar Int -> IO () -> IO ()
+-- will run the io action in a new fork unless
+-- the number of forks represented in cap is 
+-- greater than forkCap
+maybeFork cap io = do
+	forksCount <- takeMVar cap
+	if forksCount < forkCap
+	then incrementCap cap >> (forkIO $ io >> decrementCap cap) >> return ()
+	else io
 
 
 -----------------------------------------------------------------------
