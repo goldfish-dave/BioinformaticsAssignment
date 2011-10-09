@@ -5,6 +5,10 @@ import DNA
 import Distances
 import Data.Tree
 
+import Control.Concurrent
+
+---------------------------------------------------------------------
+-- Traversals
 
 simpleTraverse :: Tree a -> [a]
 simpleTraverse (Node x []) = [x]
@@ -20,6 +24,13 @@ bnbTraverse totalDistance (Node x xs) (motif, score)
 	| score' < score = foldr (bnbTraverse totalDistance) (motif, score) xs
 	| otherwise      = (motif, score)
 	where score' = totalDistance x
+
+cncrtSimpleTraverse :: (Motif -> Int) -> Tree Motif -> BestWord -> IO BestWord
+cncrtSimpleTraverse = undefined
+
+
+-----------------------------------------------------------------------
+-- Tree generation
 
 searchTree :: Int -> Tree Motif
 -- This function takes a motif length l and returns a
