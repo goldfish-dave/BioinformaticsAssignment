@@ -36,6 +36,7 @@ readLoop n ioref = do
 	printIORef ioref
 	readLoop (n-1) ioref
 
+{-
 test :: IO (MVar Int, IORef BestWord)
 test = do
 	fileLines <- fmap lines $ readFile file
@@ -43,9 +44,11 @@ test = do
 		td = scoreFunction dna 8
 		tree = searchTree 8
 	best <- newIORef ([],1000)
-	forksCount <- newMVar 0
+	--forksCount <- newMVar 0
+	forksCount <- newMVar ([],0)
 	forkIO $ cncrtSimpleTraverse td tree forksCount best
 	return (forksCount,best)
+-}
 
 printIORef :: Show a => IORef a -> IO ()
 printIORef ref = do

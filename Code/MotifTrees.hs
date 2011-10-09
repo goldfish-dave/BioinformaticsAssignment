@@ -29,18 +29,21 @@ bnbTraverse totalDistance (Node x xs) (motif, score)
 	| otherwise      = (motif, score)
 	where score' = totalDistance x
 
+type ForkRegister = ([ThreadId],Int)
+-- type ForkRegister = Int
 -- cncrt Traverse uses concurrency (forkIO and IORef) to run the traverse in concurrent threads
 -- Since IORefs do not have locks it's entirely possibly for things to go wrong
 wrapper :: (Motif -> Int) -> Tree Motif  -> IO Motif
 wrapper td tree = do
-	forks <- newMVar 0
+	--forks <- newMVar 0
+	forks <- newMVar ([],0)
 	best <- newIORef ([],100)
-	maybeFork forks $ cncrtSimpleTraverse td tree forks best
-	waitUntil (== 0) forks
+	maybeFork' forks $ cncrtSimpleTraverse td tree forks best
+	waitUntil ((== 0) . snd) forks
 	(motif,score) <- readIORef best
 	return motif
 
-cncrtSimpleTraverse :: (Motif -> Int) -> Tree Motif -> MVar Int -> IORef BestWord -> IO ()
+cncrtSimpleTraverse :: (Motif -> Int) -> Tree Motif -> MVar ForkRegister -> IORef BestWord -> IO ()
 -- currently this doesn't return a value, it just modifies a value
 cncrtSimpleTraverse totalDistance (Node x []) _ best = do
 	(motif, score) <- readIORef best
@@ -55,8 +58,7 @@ cncrtSimpleTraverse totalDistance (Node x xs) forkCount best = do
 	if score' < score
 	then do
 		writeIORef best (motif, score)
-		--print score
-		mapM_ (maybeFork forkCount . \n -> cncrtSimpleTraverse totalDistance  n forkCount best) xs
+		mapM_ (maybeFork' forkCount . \n -> cncrtSimpleTraverse totalDistance  n forkCount best) xs
 	else return ()
 
 
@@ -65,7 +67,7 @@ cncrtSimpleTraverse totalDistance (Node x xs) forkCount best = do
 -- Forking stuff
 
 -- Don't make this less than 1
-forkCap = 2 :: Int
+forkCap = 4 :: Int
 
 incrementCap :: MVar Int -> IO ()
 incrementCap cap = takeMVar cap >>= putMVar cap . (+1) >> return ()
@@ -76,12 +78,14 @@ decrementCap cap = takeMVar cap >>= putMVar cap . ((-) 1) >> return ()
 addToRegister :: MVar ([ThreadId],Int) -> IO ()
 addToRegister mvar = do
 	(ids,forks) <- takeMVar mvar
-	putMVar mvar (myThreadId:ids, forks+1)
+	thisId <- myThreadId
+	putMVar mvar (thisId:ids, forks+1)
 
 popFromRegister :: MVar ([ThreadId],Int) -> IO ()
 popFromRegister mvar = do
-	(ids,fork) <- takeMVar mvar
-	putMVar mvar (delete myThreadId ids, forks-1)
+	(ids,forks) <- takeMVar mvar
+	thisId <- myThreadId
+	putMVar mvar (delete thisId ids, forks-1)
 
 maybeFork :: MVar Int -> IO () -> IO ()
 -- will run the io action in a new fork unless
@@ -98,7 +102,7 @@ maybeFork' :: MVar ([ThreadId],Int) -> IO () -> IO ()
 -- the number of forks represented in cap is 
 -- greater than forkCap
 maybeFork' reg io = do
-	(_,forksCount) <- readMvar reg
+	(_,forksCount) <- readMVar reg
 	if forksCount < forkCap
 	then addToRegister reg >> (forkIO $ io >> popFromRegister reg) >> return ()
 	else io
