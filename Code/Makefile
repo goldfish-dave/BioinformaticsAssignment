@@ -11,15 +11,17 @@ case $1 in
 	echo Cleaning object and interface files...
 	rm *.o *.hi
 	echo Done.
+	exit 1
 	;;
 "-C")
 	echo Cleaning object, interface and main files...
 	rm *.o *.hi main
 	echo Done.
+	exit 1
 	;;
 "-p")
 	echo Compiling profiling
-	flags="--make -O2 main -prof -auto-all -rtsopts"
+	flags="--make -O2 main -threaded -prof -auto-all -rtsopts"
 	if [ $2 = "-llvm" ]; then
 		flags=" -fllvm "$flags
 	fi
@@ -28,5 +30,10 @@ case $1 in
 "-h")
 	help="[Usage]: This makefile compiles main. \n\t -llvm \t Compile with llvm (you will need this installed) \n\t -c \t Clean object and interface files \n\t -C \t Clean object, interface and main files \n\t -h \t Help"
 	echo -e $help
+	exit 1
+	;;
 esac
+
+ghc --make -O2 main $@
+
 

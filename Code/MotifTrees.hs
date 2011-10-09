@@ -5,16 +5,19 @@ import DNA
 import Distances
 import Data.Tree
 
+import Data.IORef
 import Control.Concurrent
+import Control.Concurrent.STM
 
 ---------------------------------------------------------------------
 -- Traversals
 
+-- Simple Traverse traverses the search space like a tree without and branch or bounding
 simpleTraverse :: Tree a -> [a]
 simpleTraverse (Node x []) = [x]
 simpleTraverse (Node _ xs) = concatMap simpleTraverse xs
 
-
+-- bnb Traverse uses branch and bound techniques to get a speed up on the traverse
 bnbTraverse :: (Motif -> Int) -> Tree Motif -> BestWord -> BestWord
 bnbTraverse totalDistance (Node x []) (motif, score)
 	| score' < score = (x    , score')
@@ -25,39 +28,44 @@ bnbTraverse totalDistance (Node x xs) (motif, score)
 	| otherwise      = (motif, score)
 	where score' = totalDistance x
 
-cncrtSimpleTraverse :: (Motif -> Int) -> Tree Motif -> MVar Int -> MVar BestWord -> IO ()
+-- cncrt Traverse uses concurrency (forkIO and IORef) to run the traverse in concurrent threads
+-- Since IORefs do not have locks it's entirely possibly for things to go wrong
+cncrtSimpleTraverse :: (Motif -> Int) -> Tree Motif -> IORef Int -> IORef BestWord -> IO ()
 -- currently this doesn't return a value, it just modifies a value
 cncrtSimpleTraverse totalDistance (Node x []) _ best = do
-	(motif, score) <- takeMVar best
+	(motif, score) <- readIORef best
 	let score' = totalDistance x
 	if score' < score
-	then putMVar best (x    , score') >> (putStr $ "New best: " ++ show (x,score'))
-	else putMVar best (motif,  score)
+	then writeIORef best (x    , score') >> (putStr $ "New best: " ++ show (x,score'))
+	else return ()
 
 cncrtSimpleTraverse totalDistance (Node x xs) forkCount best = do
-	(motif, score) <- takeMVar best
+	(motif, score) <- readIORef best
 	let score' = totalDistance x
 	if score' < score
 	then do
-		putMVar best (motif, score)
+		writeIORef best (motif, score)
 		--print score
 		mapM_ (maybeFork forkCount . \n -> cncrtSimpleTraverse totalDistance  n forkCount best) xs
 	else return ()
 
+---------------------------------------------------
+-- Forking stuff
+
 forkCap = 0 :: Int
 
-incrementCap :: MVar Int -> IO ()
-incrementCap cap = takeMVar cap >>= putMVar cap . (+1)
+incrementCap :: IORef Int -> IO ()
+incrementCap cap = readIORef cap >>= writeIORef cap . (+1)
 
-decrementCap :: MVar Int -> IO ()
-decrementCap cap = takeMVar cap >>= putMVar cap . ((-) 1)
+decrementCap :: IORef Int -> IO ()
+decrementCap cap = readIORef cap >>= writeIORef cap . ((-) 1)
 
-maybeFork :: MVar Int -> IO () -> IO ()
+maybeFork :: IORef Int -> IO () -> IO ()
 -- will run the io action in a new fork unless
 -- the number of forks represented in cap is 
 -- greater than forkCap
 maybeFork cap io = do
-	forksCount <- takeMVar cap
+	forksCount <- readIORef cap
 	if forksCount < forkCap
 	then incrementCap cap >> (forkIO $ io >> decrementCap cap) >> return ()
 	else io
