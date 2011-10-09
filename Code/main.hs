@@ -17,24 +17,33 @@ file = "Data/text-book-8-mer.txt"
 main = do
 --	print $ bnbMedSearch dna 8
 --	cncrtSimpleTraverse
-	(count,best) <-test
-	readLoop 10 best
+--	(count,best) <-test
+--	readLoop 10 count
+	fileLines <- fmap lines $ readFile file
+	let	dna = readDNA fileLines
+		td = scoreFunction dna 8
+		tree = searchTree 8
+	motif <- wrapper td tree
+	print motif
+	print $ bnbMedSearch dna 8
+
+	
 
 readLoop :: Show a => Int -> IORef a -> IO ()
 readLoop 0 _ = return ()
 readLoop n ioref = do
-	threadDelay 100000
+	threadDelay 300000
 	printIORef ioref
 	readLoop (n-1) ioref
 
-test :: IO (IORef Int, IORef BestWord)
+test :: IO (MVar Int, IORef BestWord)
 test = do
 	fileLines <- fmap lines $ readFile file
 	let	dna = readDNA fileLines
 		td = scoreFunction dna 8
 		tree = searchTree 8
 	best <- newIORef ([],1000)
-	forksCount <- newIORef 0
+	forksCount <- newMVar 0
 	forkIO $ cncrtSimpleTraverse td tree forksCount best
 	return (forksCount,best)
 
