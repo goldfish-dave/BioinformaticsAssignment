@@ -2,6 +2,7 @@ module Distances
 where
 
 import DNA
+import Data.List(tails)
 
 hammingDistance :: Motif -> Motif -> Int
 hammingDistance [] [] = 0
@@ -24,9 +25,12 @@ compareMotifs totalDistance motif motif' = compare score score'
 scoreFunction :: DNA -> Int -> (Motif -> Int)
 scoreFunction dna l = totalDistance
 	where
-		-- TODO: comment/clarify this
-		totalDistance motif = sum $ map (minimum . map (hammingDistance motif) . motifs l) dna
+		-- The sum of the minimum hamming distance in each line of dna
+		-- is given by totalDistance motif
+		totalDistance motif = sum $ map (minimum . map (hammingDistance motif)) possibleMotifs
+		possibleMotifs = map (motifs l) dna
 
-motifs :: Int -> [NukeTide] -> [Motif]
-motifs n nukeTides = [ take n $ drop k nukeTides | k <- [0..length nukeTides - n] ]
+motifs :: Int -> [a] -> [[a]]
+motifs n nukeTides = map (take n) $ take count $ tails nukeTides
+	where count = length nukeTides - n + 1
 
