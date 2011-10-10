@@ -10,6 +10,7 @@ import Data.IORef
 import Control.Concurrent
 import Control.Concurrent.STM
 
+infinity' = 1000
 
 ---------------------------------------------------------------------
 -- Traversals
@@ -73,10 +74,10 @@ stmTraverse :: (Motif -> Int) -> Tree Motif -> TVar ForkRegister -> TVar BestWor
 stmTraverse totalDistance (Node x []) _ best = do
 	let score' = totalDistance x
 	atomically $ do
-		(_, score) <- readTVar best
-		if score' < score
-		then writeTVar best (x , score')
-		else return ()
+	(_, score) <- readTVar best
+	if score' < score
+	then writeTVar best (x , score')
+	else return ()
 
 stmTraverse totalDistance (Node x xs) forkCount best = do
 	let score' = totalDistance x
