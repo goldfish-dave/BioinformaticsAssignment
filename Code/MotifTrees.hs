@@ -129,29 +129,29 @@ maybeFork :: MVar ([ThreadId],Int) -> IO () -> IO ()
 maybeFork reg io = do
 	(_,forksCount) <- readMVar reg
 	if forksCount < forkCap
-	then addToRegister reg >> (forkIO $ io >> popFromRegister reg) >> return ()
-	else io
+		then addToRegister reg >> (forkIO $ io >> popFromRegister reg) >> return ()
+		else io
 
 stmMaybeFork :: TVar ForkRegister -> IO () -> IO ()
 stmMaybeFork reg io = do
 	(_,forksCount) <- atomically $ readTVar reg
 	if forksCount < forkCap
-	then stmAddToReg reg >> (forkIO $ io >> stmPopFromReg reg) >> return ()
-	else io
+		then stmAddToReg reg >> (forkIO $ io >> stmPopFromReg reg) >> return ()
+		else io
 
 waitUntil :: (a -> Bool) -> MVar a -> IO ()
 waitUntil pred ref = do
 	x <- readMVar ref
 	if pred x
-	then return ()
-	else threadDelay 100000 >> waitUntil pred ref
+		then return ()
+		else threadDelay 100000 >> waitUntil pred ref
 
 waitUntil' :: (a -> Bool) -> TVar a -> IO ()
 waitUntil' pred tvar = do
 	x <- atomically $ readTVar tvar
 	if pred x
-	then return ()
-	else threadDelay 100000 >> waitUntil' pred tvar
+		then return ()
+		else threadDelay 100000 >> waitUntil' pred tvar
 
 
 -----------------------------------------------------------------------
