@@ -4,6 +4,7 @@ where
 import DNA
 import Data.List(tails)
 
+{-
 hammingDistance :: Motif -> Motif -> Int
 hammingDistance [] [] = 0
 hammingDistance xs [] = 0 -- optimistic
@@ -11,6 +12,10 @@ hammingDistance [] ys = 0 -- optimistic
 hammingDistance (x:xs) (y:ys) = case (x == y) of
 	True  -> hammingDistance xs ys
 	False -> 1 + hammingDistance xs ys
+-}
+
+hammingDistance :: Motif -> Motif -> Int
+hammingDistance xs ys = length . filter (uncurry (==)) $ zip xs ys
 
 bestOf :: BestWord -> BestWord -> BestWord
 bestOf bw@(motif, score) bw'@(motif', score')
