@@ -50,16 +50,16 @@ cncrtTraverse totalDistance (Node x []) _ best = do
 	let score' = totalDistance x
 	(motif, score) <- readIORef best
 	if score' < score
-	then writeIORef best (x    , score') 
-	else return ()
+		then writeIORef best (x    , score') 
+		else return ()
 
 cncrtTraverse totalDistance (Node x xs) forkCount best = do
 	let score' = totalDistance x
 	(motif, score) <- readIORef best
 	if score' < score
-	then do
-		mapM_ (maybeFork forkCount . \n -> cncrtTraverse totalDistance  n forkCount best) xs
-	else return ()
+		then do
+			mapM_ (maybeFork forkCount . \n -> cncrtTraverse totalDistance  n forkCount best) xs
+		else return ()
 
 wrapper' :: (Motif -> Int) -> Tree Motif -> IO Motif
 wrapper' td tree = do
@@ -76,15 +76,15 @@ stmTraverse totalDistance (Node x []) _ best = do
 	atomically $ do
 	(_, score) <- readTVar best
 	if score' < score
-	then writeTVar best (x , score')
-	else return ()
+		then writeTVar best (x , score')
+		else return ()
 
 stmTraverse totalDistance (Node x xs) forkCount best = do
 	let score' = totalDistance x
 	(_,score) <- atomically $ readTVar best
 	if score' < score
-	then mapM_ (stmMaybeFork forkCount . \n -> stmTraverse totalDistance n forkCount best) xs
-	else return ()
+		then mapM_ (stmMaybeFork forkCount . \n -> stmTraverse totalDistance n forkCount best) xs
+		else return ()
 
 
 ---------------------------------------------------
