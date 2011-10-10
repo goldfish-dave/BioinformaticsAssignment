@@ -1,11 +1,10 @@
 #!/bin/bash
 
+flags="-O2 -fllvm -threaded -rtsopts --make main -XBangPatterns"
+
 case $1 in
 "")
-	ghc --make -O2 main
-	;;
-"-llvm")
-	ghc --make -O2 main -fllvm
+	ghc $flags
 	;;
 "-c")
 	echo Cleaning object and interface files...
@@ -20,20 +19,15 @@ case $1 in
 	exit 1
 	;;
 "-p")
-	echo Compiling profiling
-	flags="--make -O2 main -threaded -prof -auto-all -rtsopts"
-	if [ $2 = "-llvm" ]; then
-		flags=" -fllvm "$flags
-	fi
+	flags="-prof -auto "$flags
 	ghc $flags
 	;;
 "-h")
-	help="[Usage]: This makefile compiles main. \n\t -llvm \t Compile with llvm (you will need this installed) \n\t -c \t Clean object and interface files \n\t -C \t Clean object, interface and main files \n\t -h \t Help"
+	help="[Usage]: This makefile compiles main. \n\t -p \t Compile with profiling enabled. Run with +RTS -p to get a main.prof created. \n\t -c \t Clean object and interface files \n\t -C \t Clean object, interface and main files \n\t -h \t Help"
 	echo -e $help
 	exit 1
 	;;
 esac
 
-ghc --make -O2 main $@
 
 

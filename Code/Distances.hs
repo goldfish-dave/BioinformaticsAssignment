@@ -7,6 +7,7 @@ import Data.List(tails)
 infinity' = maxBound :: Int
 
 {-
+-- Use this version when bangPatterns are not accessible
 hammingDistance :: Motif -> Motif -> Int
 hammingDistance [] [] = 0
 hammingDistance xs [] = 0 -- optimistic
