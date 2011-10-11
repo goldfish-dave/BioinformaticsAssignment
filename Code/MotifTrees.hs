@@ -91,7 +91,7 @@ stmTraverse totalDistance (Node x xs) forkCount best = do
 -- Forking stuff
 
 -- Don't make this less than 1
-forkCap = 4 :: Int
+forkCap = 10 :: Int
 
 type ForkRegister = ([ThreadId],Int)
 -- type ForkRegister = Int
