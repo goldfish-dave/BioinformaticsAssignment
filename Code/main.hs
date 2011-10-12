@@ -26,7 +26,7 @@ main = do
 		tree = searchTree 8
 	wrapper td tree >>= putStrLn . ("Concurrent: " ++) . show
 	wrapper' td tree >>= putStrLn . ("STM: " ++) . show
-	--putStrLn $ "Ordinary: " ++ (show . bnbMedSearch dna) 8
+	putStrLn $ "Ordinary: " ++ (show . bnbMedSearch dna) 8
 
 	
 
