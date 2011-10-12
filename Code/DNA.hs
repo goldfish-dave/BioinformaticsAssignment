@@ -1,6 +1,8 @@
 module DNA
 where
 
+import Data.Tree
+
 data Nucleotide = A | T | C | G deriving (Read, Show, Eq)
 
 type Motif = [Nucleotide] 
@@ -29,3 +31,24 @@ readLine xs = [ read [s] | s <- xs ]
 
 readDNA :: [String] -> DNA
 readDNA = map readLine
+--
+-----------------------------------------------------------------------
+-- Tree generation
+
+searchTree :: Int -> Tree Motif
+-- This function takes a motif length l and returns a
+-- search tree containing all possible motifs of length l
+-- as its leaf nodes.
+searchTree l
+	| l < 0 = error "searchTree: must use positive l!"
+	| otherwise = unfoldTree (branchTree) (seed)
+	where
+		branchTree :: BranchShoot -> (Motif, [BranchShoot])
+		branchTree (0, motif) = ( motif, [] )
+		branchTree (n, motif) = 
+			let
+				newMotifs = map (\base -> motif ++ [base]) [A,T,C,G]
+				nextLevel = repeat (n-1)
+				branchShoots = nextLevel `zip` newMotifs
+			in	(motif, branchShoots)
+		seed = (l, []) -- [] represents a motif of length 0

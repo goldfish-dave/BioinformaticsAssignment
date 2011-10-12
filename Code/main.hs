@@ -22,13 +22,17 @@ main = do
 --	readLoop 10 count
 	fileLines <- fmap lines $ readFile file
 	let	dna = readDNA fileLines
-		td = scoreFunction dna 8
-		tree = searchTree 8
-	wrapper td tree >>= putStrLn . ("Concurrent: " ++) . show
-	wrapper' td tree >>= putStrLn . ("STM: " ++) . show
-	--putStrLn $ "Ordinary: " ++ (show . bnbMedSearch dna) 8
-	cncrtMedSearch dna 8 >>= putStrLn . ("Simple Concurrent Median Search: " ++) . show
-	stmMedSearch dna 8 >>= putStrLn . ("STM Concurrent Median Search: " ++) . show
+		l = 8
+		td = scoreFunction dna l
+		tree = searchTree l
+		threads = 4
+	{-
+	simpleMedianSearch dna l
+	boundingMedianSearch dna l
+	lockingMedianSearch threads dna l
+	stmMedianSearch threads dna l
+	-}
+	return ()
 
 	
 
