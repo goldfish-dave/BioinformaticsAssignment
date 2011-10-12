@@ -61,14 +61,15 @@ cncrtTraverse totalDistance (Node x xs) forkCount best = do
 			mapM_ (maybeFork forkCount . \n -> cncrtTraverse totalDistance  n forkCount best) xs
 		else return ()
 
-wrapper' :: (Motif -> Int) -> Tree Motif -> IO Motif
+--wrapper' :: (Motif -> Int) -> Tree Motif -> IO Motif
+wrapper' :: (Motif -> Int) -> Tree Motif -> IO BestWord
 wrapper' td tree = do
 	forks <- atomically $ newTVar ([],0)
 	best <- atomically $ newTVar ([],100)
 	stmMaybeFork forks $ stmTraverse td tree forks best
 	waitUntil' ((== 0) . snd) forks
-	(motif,_) <- atomically $ readTVar best
-	return motif
+	bw@(motif,_) <- atomically $ readTVar best
+	return bw
 
 stmTraverse :: (Motif -> Int) -> Tree Motif -> TVar ForkRegister -> TVar BestWord -> IO ()
 stmTraverse totalDistance (Node x []) _ best = do

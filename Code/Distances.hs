@@ -7,7 +7,6 @@ import Data.List(tails)
 infinity' = maxBound :: Int
 
 {-
--- Use this version when bangPatterns are not accessible
 hammingDistance :: Motif -> Motif -> Int
 hammingDistance [] [] = 0
 hammingDistance xs [] = 0 -- optimistic
@@ -18,7 +17,20 @@ hammingDistance (x:xs) (y:ys) = case (x == y) of
 -}
 
 hammingDistance :: Motif -> Motif -> Int
+hammingDistance xs ys = go 0 xs ys
+	where
+		go !acc [] [] = acc
+		go !acc xs [] = acc
+		go !acc [] ys = acc
+		go !acc (x:xs) (y:ys) = case (x == y) of
+			True -> go acc xs ys
+			False -> go (acc+1) xs ys
+
+{-
+-- Use this version when bangPatterns are not accessible
+hammingDistance :: Motif -> Motif -> Int
 hammingDistance xs ys = length . filter (uncurry (==)) $ zip xs ys
+-}
 
 bestOf :: BestWord -> BestWord -> BestWord
 bestOf bw@(motif, score) bw'@(motif', score')
