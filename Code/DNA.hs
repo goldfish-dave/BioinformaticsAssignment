@@ -1,11 +1,13 @@
 module DNA
 where
 
-data NukeTide = A | T | C | G deriving (Read, Show, Eq, Ord, Enum)
+data Nucleotide = A | T | C | G deriving (Read, Show, Eq)
 
-type Motif = [NukeTide] -- Not all [NukeTide] are motifs, could be confusing
-type DNA = [[NukeTide]]
-
+type Motif = [Nucleotide] 
+type DNA = [[Nucleotide]]
+type Position = Int
+type MotifPos = (Motif,Position)
+type ScorePositions = (Int  ,[Position])
 type BestWord = (Motif, Int)  -- (BestWord, BestDistance)
 		    				  -- Used to represent a motif and its score
 -- newtype BestWord = BestWord (Motif, Int)
@@ -16,10 +18,13 @@ type BranchShoot = (Int, Motif) -- (Motif length, Motif)
                                 -- Used to represent a (possibly incomplete) motif
 								-- in a search tree.
 
+compareScorePos :: (Int, Position) -> (Int, Position) -> Ordering
+compareScorePos (score,_) (score',_) = compare score score'
+
 -- NB: BestWord and BranchShoot hold the same datatypes
 -- but are made distinct because their purposes are different.
 
-readLine :: String -> [NukeTide]
+readLine :: String -> [Nucleotide]
 readLine xs = [ read [s] | s <- xs ] 
 
 readDNA :: [String] -> DNA

@@ -10,6 +10,7 @@ import Data.IORef
 import Control.Concurrent
 import Control.Concurrent.STM
 
+infinity = maxBound :: Int
 
 simpMedSearch :: DNA -> Int -> Motif
 -- Takes an n x t array of nucleotides and a length l
@@ -22,6 +23,12 @@ simpMedSearch dna l = fst . minimumBy (\a b -> compare (snd a) (snd b)) $ map be
 		bestWord word = (word, totalDistance word)
 
 		motifs = simpleTraverse $ searchTree l
+
+simpMedSearch' :: DNA -> Int -> Motif
+simpMedSearch' dna l = simpleTraverse getScore ([],infinity) tree
+	where
+		tree = searchTree l
+		getScore = scoreFunction dna l
 
 bnbMedSearch :: DNA -> Int -> Motif
 bnbMedSearch dna l = fst $ bnbTraverse totalDistance (searchTree l) ([],infinity)

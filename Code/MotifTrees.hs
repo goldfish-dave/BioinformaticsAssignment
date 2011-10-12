@@ -1,34 +1,42 @@
 module MotifTrees
 where
 
-import DNA
-import Distances
 import Data.Tree
-
 import Data.List (delete)
+
 import Data.IORef
+import Data.Foldable(minimumBy)
+
 import Control.Concurrent
 import Control.Concurrent.STM
 
-
+type Score = Int
+type Best a = (Score, a)
 ---------------------------------------------------------------------
+compareBest (score,_) (score',_) = compare score score'
+selectBest b b' = minimumBy compareBest [b,b']
 -- Traversals
 
 -- Simple Traverse traverses the search space like a tree without and branch or bounding
-simpleTraverse :: Tree a -> [a]
-simpleTraverse (Node x []) = [x]
-simpleTraverse (Node _ xs) = concatMap simpleTraverse xs
+simpleTraverse :: (a -> Score) -> Tree a -> Best a -> Best a
+simpleTraverse getScore (Node x []) (score,best)
+	| score' < score = (score', x)
+	| otherwise = (score,best)
+	where score' = getScore x
+
+simpleTraverse getScore (Node _ xs) best = minimumBy compareBest $ map (\tree -> simpleTraverse getScore tree best) xs
 
 -- bnb Traverse uses branch and bound techniques to get a speed up on the traverse
-bnbTraverse :: (Motif -> Int) -> Tree Motif -> BestWord -> BestWord
-bnbTraverse totalDistance (Node x []) (motif, score)
-	| score' < score = (x    , score')
-	| otherwise      = (motif, score )
-	where score'  = totalDistance x
-bnbTraverse totalDistance (Node x xs) (motif, score)
-	| score' < score = foldr (bnbTraverse totalDistance) (motif, score) xs
-	| otherwise      = (motif, score)
-	where score' = totalDistance x
+bnbTraverse :: (a -> Score) -> Tree a -> Best a -> Best a
+bnbTraverse getScore (score,best) (Node x []) 
+	| score' < score = (score', x)
+	| otherwise      = (score, best)
+	where score'  = getScore x
+
+bnbTraverse getScore b@(score,_) (Node x xs) 
+	| score' < score = foldr (bnbTraverse getScore) b xs
+	| otherwise      = b
+	where score' = getScore x
 
 
 -- cncrt Traverse uses concurrency (forkIO and IORef) to run the traverse in concurrent threads
