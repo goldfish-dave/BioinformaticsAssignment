@@ -10,7 +10,6 @@ import Data.IORef
 import Control.Concurrent
 import Control.Concurrent.STM
 
-infinity' = 1000
 
 ---------------------------------------------------------------------
 -- Traversals

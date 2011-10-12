@@ -4,7 +4,7 @@ where
 import DNA
 import Data.List(tails)
 
-infinity' = maxBound :: Int
+infinity = maxBound :: Int
 
 hammingDistance :: Motif -> Motif -> Int
 hammingDistance xs ys = go 0 xs ys
