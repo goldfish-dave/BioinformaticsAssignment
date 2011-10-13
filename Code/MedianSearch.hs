@@ -14,9 +14,10 @@ import Control.Concurrent
 import Control.Concurrent.STM
 
 import Forks
+import Control.Concurrent(threadDelay)
 
 infinity = maxBound :: Int
-seed = (infinity, undefined)
+seed = (infinity,([],[])) :: Best (Motif,[Position])
 
 simpleMedianSearch :: DNA -> Int -> (Motif,[Position])
 simpleMedianSearch dna l = snd $ simpleTraverse getScore tree seed
@@ -38,6 +39,7 @@ lockingMedianSearch forksCap dna l = do
 	reg <- newMVar emptyRegister
 	best <- newIORef seed
 	maybeFork reg forksCap $ lockingTraverse forksCap getScore reg tree best
+	threadDelay 100
 	waitUntil (== emptyRegister) reg
 	readIORef best >>= return . snd
 
@@ -48,6 +50,7 @@ stmMedianSearch forksCap dna l = do
 	reg <- atomically $ newTVar emptyRegister
 	best <- atomically $ newTVar seed
 	maybeSTMFork reg forksCap $ stmTraverse forksCap getScore reg tree best
+	threadDelay 100
 	waitUntilSTM (== emptyRegister) reg
 	atomically $ readTVar best >>= return . snd
 
