@@ -26,6 +26,7 @@ main = do
 		td = scoreFunction dna l
 		tree = searchTree l
 		threads = 4
+	print $ boundingMedianSearch dna l
 	{-
 	simpleMedianSearch dna l
 	boundingMedianSearch dna l

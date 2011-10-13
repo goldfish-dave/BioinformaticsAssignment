@@ -31,9 +31,9 @@ getScorePos :: Motif -> MotifPos -> (Int, Position)
 getScorePos motif (motif',pos) = (hammingDistance motif motif', pos)
 
 collectScorePos :: (Int,Position) -> ScorePositions -> ScorePositions
-collectScorePos (score, pos) (totalScore, positions) = (score + totalScore, positions ++ [pos])
+collectScorePos (score, pos) (totalScore, positions) = (score + totalScore, pos:positions) -- ++ [pos])
 
 getMotifPos :: Int -> [Nucleotide] -> [(Motif,Position)]
-getMotifPos n nukeTides = (map (take n) $ take count $ tails nukeTides) `zip` [1..]
+getMotifPos n nukeTides = (map (take n) $ take count $ tails nukeTides) `zip` [0..]
 	where count = length nukeTides - n + 1
 

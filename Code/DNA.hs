@@ -1,6 +1,7 @@
 module DNA
 where
 
+import Data.Char (toLower, toUpper)
 import Data.Tree
 
 data Nucleotide = A | T | C | G deriving (Read, Show, Eq)
@@ -10,28 +11,31 @@ type DNA = [[Nucleotide]]
 type Position = Int
 type MotifPos = (Motif,Position)
 type ScorePositions = (Int  ,[Position])
-type BestWord = (Motif, Int)  -- (BestWord, BestDistance)
-		    				  -- Used to represent a motif and its score
--- newtype BestWord = BestWord (Motif, Int)
--- It would be nice to have BestWord as a newtype if I could
--- think of a clean way to define an Ordering on them
 
-type BranchShoot = (Int, Motif) -- (Motif length, Motif)
-                                -- Used to represent a (possibly incomplete) motif
-								-- in a search tree.
+type BranchShoot = (Int, Motif)
 
 compareScorePos :: (Int, Position) -> (Int, Position) -> Ordering
 compareScorePos (score,_) (score',_) = compare score score'
-
--- NB: BestWord and BranchShoot hold the same datatypes
--- but are made distinct because their purposes are different.
 
 readLine :: String -> [Nucleotide]
 readLine xs = [ read [s] | s <- xs ] 
 
 readDNA :: [String] -> DNA
 readDNA = map readLine
---
+
+showMotif :: [Nucleotide] -> String
+showMotif = concatMap show
+
+highlightPositions :: DNA -> [Position] -> Int -> [String]
+highlightPositions dna positions length = map (highlightPositions' length) $ zip dna positions
+
+highlightPositions' :: Int -> ([Nucleotide],Position) -> String
+highlightPositions' length (nukes, pos) = map toLower beforeMotif ++ map toUpper motif ++ map toLower afterMotif
+	where
+		nukes' = concatMap show nukes :: String
+		(beforeMotif, rest) = splitAt pos nukes'
+		(motif, afterMotif) = splitAt length rest
+
 -----------------------------------------------------------------------
 -- Tree generation
 
