@@ -4,7 +4,13 @@ where
 import Data.Char (toLower, toUpper)
 import Data.Tree
 
-data Nucleotide = A | T | C | G deriving (Read, Show, Eq)
+data Nucleotide = A | T | C | G deriving (Show, Eq)
+
+readNuc "A" = A
+readNuc "T" = T
+readNuc "C" = C
+readNuc "G" = G
+readNuc s = error $ show s ++ " is not a valid nucleotide"
 
 type Motif = [Nucleotide] 
 type DNA = [[Nucleotide]]
@@ -18,7 +24,7 @@ compareScorePos :: (Int, Position) -> (Int, Position) -> Ordering
 compareScorePos (score,_) (score',_) = compare score score'
 
 readLine :: String -> [Nucleotide]
-readLine xs = [ read [s] | s <- xs ] 
+readLine xs = [ readNuc [s] | s <- xs ] 
 
 readDNA :: [String] -> DNA
 readDNA = map readLine

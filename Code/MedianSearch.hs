@@ -39,7 +39,7 @@ lockingMedianSearch forksCap dna l = do
 	reg <- newMVar emptyRegister
 	best <- newIORef seed
 	maybeFork reg forksCap $ lockingTraverse forksCap getScore reg tree best
-	threadDelay 100
+	threadDelay 1000
 	waitUntil (== emptyRegister) reg
 	readIORef best >>= return . snd
 
@@ -50,7 +50,7 @@ stmMedianSearch forksCap dna l = do
 	reg <- atomically $ newTVar emptyRegister
 	best <- atomically $ newTVar seed
 	maybeSTMFork reg forksCap $ stmTraverse forksCap getScore reg tree best
-	threadDelay 100
+	threadDelay 1000
 	waitUntilSTM (== emptyRegister) reg
 	atomically $ readTVar best >>= return . snd
 
