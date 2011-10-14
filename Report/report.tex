@@ -88,76 +88,37 @@ And the \texttt{ucpu0} server was used to run the algorithms for up to 14 cores.
 \caption{Caption, caption.}\label{fig:01}
 \end{figure}
 
-\begin{figure}[!tpb]%figure2
-%\centerline{\includegraphics{fig02.eps}}
-\caption{Caption, caption.}\label{fig:02}
-\end{figure}
 
 \section{Discussion}
 
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text.
+The full code is less that 400 lines. It does everything but the benchmarking, which a strong attempt made at abstracting responsibilities (see the Forking module). Although elegance and simplicity of code are subjective measures I think the code base used is well maintainable.
 
+There were some issues with implementations. Prior to parallelism and other benchmarking several profiles were run oh the code, evaluating cost centres. It was found the majority of the runtime was due two two functions. The cause was unknown but after sharing with Stack Overflow solutions were provided. 
 
+Another issue was the inability to install Threadscope. Threadscope is the recomended profiler for threaded Haskell programs, and it's loss made indepth analysis of threads difficult. 
 
+Looking at FIG 1 we can see that the non-forking algorithm does much more poorly than the forking ones, even on 1 core. This is due to an update that was made to the forking algorithms and mistakenly didn't make its way to the non-forking algorithm. 
+What we can take away from this figure is that there is no noticible speedup due to an increase in the number of forks only.
 
-Table~\ref{Tab:01} shows that Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that
-the above method Text Text. Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that
-the above method Text Text. Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that
-the above method Text Text.
+In FIG 2 we can compare the Locking algorithm with the STM algorithm. In this figure we can see that the STM scales slightly better onto more cores.
 
+In FIG 3 we see STM run from 1-14 cores. The speedup increases until 8 for all fork/core values, at which stage it stops improving as much. It's not until 14 cores that we find we're losing time.
 
+It should be noted at this point that at the same time as I was running my tests someone else was occupying around 2-4 of the cores at a time on the \texttt{ucpu0} server, so results beyond 8 cores ought to be taken with a heavy grain of salt. Additionally due to time constraints each test was only run 3 times, thus the fluctuation is occasionally quite severe. Fortunately there is enough data to continue investigation.
 
+Given that, it is not unusual that the speedup disappears as the cores increase. The ForkRegister used to store all the live forks was implemented as a list, so the larger the number of live forks get the longer it takes to update the ForkRegister. This has carry on effects, such that in a second implementation one of the first things I would suggest is implementing the ForkRegister as a hashmap.
 
+FIG 4 shows the speedup as a function of cores. The first obvious thing about this figure is the sharp peak for 4 and 8 forks around 8 cores. If this graph is to be believed, at that range we get a speed up of 120! This was an unexpectedly high value, but there are many possible explanations for it.
 
+Firstly, the runtime for these instances was less than a tenth of a second, so the data being too small is potentially an issue.
 
+Secondly, the tests were only run 4 times, and the result shown is the average.
 
+However, neither of those explanations were enough to invalidate that something was happening at this point. Sure enough, if we look at FIG 5, the efficiency graph (logscale) we can see that both the data points lie above the linear speedup line.
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%     please remove the " % " symbol from \centerline{\includegraphics{fig01.eps}}
-%     as it may ignore the figures.
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
+Although we have an explanation for why the speedup disappears as cores get too large, we don't have one for why there is no superlinear speedup prior to when it occurs. The only observation is that the behaviour at 8 cores is like a "critical mass" of interplay between different forks was reached, only to shortly be overrun by overheads.
 
 \section{Conclusion}
-
-(Table~\ref{Tab:01}) Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.
-
-
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-
-
-
-
-
-\begin{enumerate}
-\item this is item, use enumerate
-\item this is item, use enumerate
-\item this is item, use enumerate
-\end{enumerate}
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text.
-
-
-
-
-
-
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text
-
 
 \section*{Acknowledgement}
 Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
@@ -206,4 +167,22 @@ formes cliniques de l'obesite hypophysaire). PhD Thesis, name of
 institution, Paris, France.
 
 \end{thebibliography}
+
+\section{Appendix}
+
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{time-on-1-core.png}
+\end{figure}
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{time-and-forks-on-cores.png}
+\end{figure}
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{time-and-forks-on-cores-again.png}
+\end{figure}
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{speedup-and-forks-on-cores.png}
+\end{figure}
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{log-efficiency-and-forks-on-cores.png}
+\end{figure}
 \end{document}
