@@ -19,7 +19,7 @@
 \begin{abstract}
 
 \section{Motivation:}
-It is not necessary to argue the importance of parallel programming for the future of computer science. That said, the phenomenon known as super linear speedup, where the speed of the program is increased by more than the number of additional cpu cores it runs on, was the icing on the cake. Additionally there was a large focus on scaling the simplicity of the code inspite of the sophisticated concepts used.
+It is not necessary to argue the importance of parallel programming for the future of computer science\cite{beautCon}. That said, the phenomenon known as super linear speedup, where the speed of the program is increased by more than the number of additional cpu cores it runs on, was the icing on the cake. Additionally there was a large focus on scaling the simplicity of the code inspite of the sophisticated concepts used.
 
 \section{Results:}
 For the test data used, and the combinations of fork/core, superlinear speedup was detected in a "sweetspot" when using 4-8 forks/core and 8-10 cores total. Other combinations either fell in the range of providing a sub-linear speedup or a loss in speed due to overhead costs. Typically using more cores or forks/core than the sweetspot resulted in a loss to overhead, and less was a sub-linear speedup. Although the observations made are not in doubt, there is a significant lack in precision, obstructing a deeper investigation into the phenomenon.
@@ -42,15 +42,14 @@ It is for this reason that the motif finding algorithm, Median String Search, wa
 
 As an aside, there are other possible causes for a SLS involving tiered memory, but that hardware related phenomenon will not be investigated in this software based report.
 
-Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure~\ref{fig:01} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citep{Bag01} wants to know about …… text follows.
 
 \section{Approach}
 
-In order to meet the above requirement for producing a SLS, a concurrent branch and bound algorithm must be implemented. Unfortunately this rules out classes of parallel programming styles involving implicit parallelism of deterministic computations using strategies. After initial research a cluster programming approach was discarded in favour of the more supported multicore approach. Which raises the common multicore question: if one core reads the global cut-off, finds a better cut-off, and goes to update the global cut-off, how do we deal with the case where the global cut-off has \textit{already} been updated with \textit{an even better} cut-off? Thankfully the finally result won't change, but it may take longer to compute now. Do we take no extra action and allow our recently improved cut-off to be reverted to an inferior cut-off improvement? Or do we, somehow, prevent this from happening? The somehow is likely to be expensive, either computationally (interfering with our search for SLS) or conceptually (interfering with our attempt to control complexity). Both approaches were implemented.
+In order to meet the above requirement for producing a SLS, a concurrent branch and bound algorithm must be implemented. Unfortunately this rules out classes of parallel programming styles involving implicit parallelism of deterministic computations using strategies. After initial research a cluster programming\cite{cloudHaskell} approach was discarded in favour of the more supported multicore approach. Which raises the common multicore question: if one core reads the global cut-off, finds a better cut-off, and goes to update the global cut-off, how do we deal with the case where the global cut-off has \textit{already} been updated with \textit{an even better} cut-off? Thankfully the finally result won't change, but it may take longer to compute now. Do we take no extra action and allow our recently improved cut-off to be reverted to an inferior cut-off improvement? Or do we, somehow, prevent this from happening? The somehow is likely to be expensive, either computationally (interfering with our search for SLS) or conceptually (interfering with our attempt to control complexity). Both approaches were implemented.
 
 That said, due to the way in which forking was implemented and controlled (a global list of live forks), race conditions were encountered and tackled in both implementations.
 
-The question remains then, how do we prevent race conditions? The conventional approach is using locks on the resource throughout the process, which has it's strengths and weaknesses, but the approach I decided on was Software Transactional Memory (STM). The key reason was this: interesting to read about it may be, the finer details of the process used (rollback and retry) are abstracted neatly, allowing simple and composable code hopefulyl without sacrificing too much performance.
+The question remains then, how do we prevent race conditions? The conventional approach is using locks on the resource throughout the process, which has it's strengths and weaknesses, but the approach I decided on was Software Transactional Memory (STM\cite{compmemtran}). The key reason was this: interesting to read about it may be, the finer details of the process used (rollback and retry) are abstracted neatly, allowing simple and composable code hopefulyl without sacrificing too much performance.
 
 
 \begin{methods}
@@ -83,12 +82,6 @@ And the \texttt{ucpu0} server was used to run the algorithms for up to 14 cores.
 
 \end{methods}
 
-\begin{figure}[!tpb]%figure1
-%\centerline{\includegraphics{fig01.eps}}
-\caption{Caption, caption.}\label{fig:01}
-\end{figure}
-
-
 \section{Discussion}
 
 The full code is less that 400 lines. It does everything but the benchmarking, which a strong attempt made at abstracting responsibilities (see the Forking module). Although elegance and simplicity of code are subjective measures I think the code base used is well maintainable.
@@ -120,51 +113,30 @@ Although we have an explanation for why the speedup disappears as cores get too 
 
 \section{Conclusion}
 
+Although the three goals were achieved I am unsatisfied with the data recorded. The biggest problem with it is that it is lacking data on multiple sizes of input, in number of tests recorded and on the unknown influence of the other unknown person consuming up to 4 cores at a time for their own purposes (not that they aren't equally entitled to it).
+
 \section*{Acknowledgement}
-Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text
+Special thanks to the responders on Stack Overflow to my question:
+http://stackoverflow.com/questions/7704499/how-to-eliminate-cost-centres-in-string-taversals-and-list-comprehensions
 
-\paragraph{Funding\textcolon} Text Text Text Text Text Text  Text Text.
-
-%\bibliographystyle{natbib}
-%\bibliographystyle{achemnat}
-%\bibliographystyle{plainnat}
-%\bibliographystyle{abbrv}
-%\bibliographystyle{bioinformatics}
-%
-%\bibliographystyle{plain}
-%
-%\bibliography{Document}
-
+The best tutorial for learning parallel Haskell is without doubt \cite{SPJTut}.
 
 \begin{thebibliography}{}
-\bibitem[Bofelli {\it et~al}., 2000]{Boffelli03} Bofelli,F., Name2, Name3 (2003) Article title, {\it Journal Name}, {\bf 199}, 133-154.
 
-\bibitem[Bag {\it et~al}., 2001]{Bag01} Bag,M., Name2, Name3 (2001) Article title, {\it Journal Name}, {\bf 99}, 33-54.
+\bibitem[Jeff Epstein \textit{et~al}]{cloudHaskell}
+Towards Haskell in the Cloud
 
-\bibitem[Yoo \textit{et~al}., 2003]{Yoo03}
-Yoo,M.S. \textit{et~al}. (2003) Oxidative stress regulated genes
-in nigral dopaminergic neurnol cell: correlation with the known
-pathology in Parkinson's disease. \textit{Brain Res. Mol. Brain
-Res.}, \textbf{110}(Suppl. 1), 76--84.
+\bibitem[Simon Peyton Jones]{beautCon}
+Beautiful concurrency
 
-\bibitem[Lehmann, 1986]{Leh86}
-Lehmann,E.L. (1986) Chapter title. \textit{Book Title}. Vol.~1, 2nd edn. Springer-Verlag, New York.
+\bibitem[Tim Harris \textit{et~al}]{compmemtran}
+Composable Memory Transactions
 
-\bibitem[Crenshaw and Jones, 2003]{Cre03}
-Crenshaw, B.,III, and Jones, W.B.,Jr (2003) The future of clinical
-cancer management: one tumor, one chip. \textit{Bioinformatics},
-doi:10.1093/bioinformatics/btn000.
+\bibitem[Tutorial,2008]{SPJTut}
+A Tutorial on Parallel and Concurrent
+Programming in Haskell
+Simon Peyton Jones and Satnam Singh
 
-\bibitem[Auhtor \textit{et~al}. (2000)]{Aut00}
-Auhtor,A.B. \textit{et~al}. (2000) Chapter title. In Smith, A.C.
-(ed.), \textit{Book Title}, 2nd edn. Publisher, Location, Vol. 1, pp.
-???--???.
-
-\bibitem[Bardet, 1920]{Bar20}
-Bardet, G. (1920) Sur un syndrome d'obesite infantile avec
-polydactylie et retinite pigmentaire (contribution a l'etude des
-formes cliniques de l'obesite hypophysaire). PhD Thesis, name of
-institution, Paris, France.
 
 \end{thebibliography}
 
@@ -172,17 +144,22 @@ institution, Paris, France.
 
 \begin{figure}[h]
 \includegraphics[width=\linewidth]{time-on-1-core.png}
+\caption{}
 \end{figure}
 \begin{figure}[h]
 \includegraphics[width=\linewidth]{time-and-forks-on-cores.png}
+\caption{}
 \end{figure}
 \begin{figure}[h]
 \includegraphics[width=\linewidth]{time-and-forks-on-cores-again.png}
+\caption{}
 \end{figure}
 \begin{figure}[h]
 \includegraphics[width=\linewidth]{speedup-and-forks-on-cores.png}
+\caption{}
 \end{figure}
 \begin{figure}[h]
 \includegraphics[width=\linewidth]{log-efficiency-and-forks-on-cores.png}
+\caption{}
 \end{figure}
 \end{document}
