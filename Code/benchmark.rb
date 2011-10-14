@@ -7,7 +7,7 @@ test = lambda do |forks,algorithm,length,file,display,cores|
 		d = ""
 	end
 	Benchmark.measure do
-		`./main -f #{(forks*cores).to_s} -l #{l.to_s} -o #{file.to_s} -a #{algorithm.to_s} #{d} +RTS -N#{c.to_s}`
+		`./main -f #{(forks*cores).to_s} -l #{length.to_s} -o #{file.to_s} -a #{algorithm.to_s} #{d} +RTS -N#{cores.to_s}`
 	end
 end
 

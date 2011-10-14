@@ -66,5 +66,5 @@ selectAlgorithm algorithm = case map toLower algorithm of
 readInt :: String -> Int
 readInt "inf" = maxBound :: Int
 readInt s = case reads s of
-	[(x,"")] -> if x > 1 then x else error "You must input a positive number."
+	[(x,"")] -> if x >= 1 then x else error "You must input a positive number."
 	_ -> error $ "Cannot coerce an int: " ++ show s
