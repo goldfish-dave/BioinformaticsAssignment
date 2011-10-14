@@ -11,35 +11,32 @@ class Array
 	end
 end
 
-run_main = lambda do |forks,algorithm,length,file,display,cores|
-	if display
-		d = "-d"
-	else
-		d = ""
-	end
+def run_test(forks,algorithm,length,file,cores)
 	Benchmark.measure do
-		`./main -f #{(forks*cores).to_s} -l #{length.to_s} -o #{file.to_s} -a #{algorithm.to_s} #{d} +RTS -N#{cores.to_s}`
+		`./main -f #{(forks*cores).to_s} -l #{length.to_s} -o #{file.to_s} -a #{algorithm.to_s} +RTS -N#{cores.to_s}`
 	end
 end
 
 
-def test1(n=1,l=8,file)
+def test1(n,l,file)
 # in this test we compare the different algorithms on 1 core
 #   for the algorithms which can run in multiple forks we test 
 #   them on [1,2,4,8] forks
 #
 # output format is a csv:
 # 	algorithm,forks,cores,time, stdev
-	algorithms = ["simple","bounding","locking","stm"]
+	algorithms = ["locking","stm"]
 	forks = [1,2,4,8]
 	
+	puts "bounding,1,1,#{run_test(1,"bounding",l,file,1).real},#{[1].stdev}"
 	algorithms.each do |a|
 		forks.each do |f|
 			results = []
-			n.times { results << test.call(f,a,l,file,false,1).real }
+			n.times { results << run_test(f,a,l,file,1).real }
 			puts "#{a},#{f},1,#{results.average},#{results.stdev}"
 		end
 	end
+	
 end
 
 def test2(n,l,file)
@@ -78,7 +75,7 @@ def test3(n,l,file)
 	end
 end			
 
-def main
-	file = "Data/aps_ref_Acyr_2.0_chrMT.fa"
-	test1(10,8,file)
-end
+## main ##
+#
+file = "Data/aps_ref_Acyr_2.0_chrMT.fa"
+test1(1,8,file)
