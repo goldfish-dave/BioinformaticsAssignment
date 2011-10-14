@@ -1,7 +1,38 @@
-Usyd COMP3456 Bioninformatics assignment involving parallel STM motif finding 
-algorithm using Median String Search.
+cd Code
+./Makefile -C # clean directory
+./Makefile # compile main file
+./main -h # prints out usage. There is test data in Code/Data/
 
-Author: Dave Wilcox
+Module Main makes use of
+	Median Search	to		perform median search
+	DNA				to		get data types
+it has a function parseArgs which decides what to do given the arguments
+	
+Module Median Search makes use of
+	MotifTrees		to 		perform traversals of trees
+	Distances		to		compute a score function
+	Forks			to		initialize ForkRegisters and the like
+	DNA 			to		get data types
+it provides 4 functions, simple, bounding, locking and stm median search
 
-COMMANDS:
-	Code/Makefile -h 
+Module Motif Trees makes use of
+	Forks			to		handle the creation of new forks
+it provides 4 functions, simple, bounding, locking and stm branch and bound traversal
+(it is a generic programming algorithm => it'll work for any tree of any data type
+if you provide it with a score function)
+
+Module Distances makes use of
+	DNA 			to 		get data types
+it provides a function to compute a distance function for motifs, given a dna and a motif length
+
+
+Code -> contains the code
+	benchmark is used to get benchmark data
+	Data -> contains test data
+
+Report -> contains the report tex files
+	-> also contains the raw data
+
+
+
+
