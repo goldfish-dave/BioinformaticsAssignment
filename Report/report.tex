@@ -52,13 +52,34 @@ That said, due to the way in which forking was implemented and controlled (a glo
 
 The question remains then, how do we prevent race conditions? The conventional approach is using locks on the resource throughout the process, which has it's strengths and weaknesses, but the approach I decided on was Software Transactional Memory (STM). The key reason was this: interesting to read about it may be, the finer details of the process used (rollback and retry) are abstracted neatly, allowing simple and composable code hopefulyl without sacrificing too much performance.
 
-Equation~(\ref{eq:01}) Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure \ref{fig:02} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citealp{Boffelli03} might want to know about  text text text text ……
-
 
 \begin{methods}
 \section{Methods}
 
+The key concept to discuss in the methods is the branching technique. Although one might be tempted to spawn a new fork for every child in the search tree, a fork is not without overhead, and an "infinite" amount of forks has the consequence of an infinite queue when waiting to write to an object. A limit to the number of forks is required, implemented by the following code, which is perhaps the greatest example of controlling complexity in the report:
+\begin{verbatim}
+maybeSTMFork :: TVar ForkRegister ->
+                Int -> IO () -> IO ()
+maybeSTMFork reg forkCap io = do
+  (_,forksCount) <- atomically $ readTVar reg
+    if forksCount < forkCap
+      then (forkIO $ toggleSTMFork reg True >> 
+            io >> toggleSTMFork reg False) >>
+            return ()
+      else io
+\end{verbatim}
+The above function takes a ForkRegister, a cap to the number of forks and an action to perform. After checking if there is room for another fork the action is either forked off by another thread or executed by the current thread. In this way the notion of forking or not was abstracted away from all parts of the code but the one which called this over all the children of a node.
 
+Test data was obtained from NCBI, approx 240 lines of sequences 70 characters long.
+
+A Ruby script was written to handle benchmarking. It consisted of three tests:
+\begin{enumerate}
+	\item Compare a non concurrent branch and bound to the two concurrent implementations for multiple numbers of forking limits, but only on one core.
+	\item Compare the two concurrent implementations for multiple combinations of fork-per-core * cores. The two implementations are refered to as STM and Locking, due to the way they handle race conditions on the global ForkRegisters.
+	\item Finally inspect the best implementation in greater detail with a larger combination of forks/core and cores.
+\end{enumerate}
+
+And the \texttt{ucpu0} server was used to run the algorithms for up to 14 cores.
 
 \end{methods}
 
