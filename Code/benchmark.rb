@@ -42,6 +42,42 @@ def test1(n=1,l=8,file)
 	end
 end
 
+def test2(n,l,file)
+# in this test we pit the locking algorithm against the stm algorithm
+# 	by changing the number of cores, using the fastest forking ratio
+#
+# output format is a csv:
+# 	algorithm,forks,cores,time, stdev
+	algorithms = ["locking","stm"]
+	forks = 
+	cores = [1,2,4,8]
+
+	algorithm.each do |a|
+		cores.each do |c|
+			results = []
+			n.times { results << run_main(f,a,l,file,c) }
+			puts "#{a},#{f},1,#{results.average},#{results.stdev}"
+		end
+	end
+end			
+
+def test3(n,l,file)
+# in this test we take the most scalable algorithm and test it
+# over all fork and core combinations, in order to find the
+# speedup and efficiency
+	algorithms = 
+	forks = [1,2,4,8]
+	cores = [1,2,4,8]
+
+	cores.each do |c|
+		forks.each do |f|
+			results = []
+			n.times { results << run_main(f,a,l,file,c) }
+			puts "#{a},#{f},1,#{results.average},#{results.stdev}"
+		end
+	end
+end			
+
 def main
 	file = "Data/aps_ref_Acyr_2.0_chrMT.fa"
 	test1(10,8,file)
