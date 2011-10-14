@@ -2,7 +2,7 @@ require 'benchmark'
 
 class Array
 	def average
-		self.inject(0) { |sum,x| sum += x }
+		(self.inject(0) { |sum,x| sum += x }) / (self.size.to_f)
 	end
 	def stdev
 		avg = self.average
@@ -28,7 +28,10 @@ def test1(n,l,file)
 	algorithms = ["locking","stm"]
 	forks = [1,2,4,8]
 	
-	puts "bounding,1,1,#{run_test(1,"bounding",l,file,1).real},#{[1].stdev}"
+	puts "algorithm,forks,cores,time,stdev"
+	bounding = []
+	n.times { bounding << run_test(1,"bounding",l,file,1).real }
+	puts "bounding,1,1,#{bounding.average.to_s},#{bounding.stdev.to_s}"
 	algorithms.each do |a|
 		forks.each do |f|
 			results = []
@@ -46,14 +49,17 @@ def test2(n,l,file)
 # output format is a csv:
 # 	algorithm,forks,cores,time, stdev
 	algorithms = ["locking","stm"]
-	forks = 
-	cores = [1,2,4,8]
+	forks = [1,2]
+	cores = [2,4,8]
 
-	algorithm.each do |a|
+	puts "algorithm,forks,cores,time,stdev"
+	algorithms.each do |a|
 		cores.each do |c|
-			results = []
-			n.times { results << run_main(f,a,l,file,c) }
-			puts "#{a},#{f},1,#{results.average},#{results.stdev}"
+			forks.each do |f|
+				results = []
+				n.times { results << run_test(f,a,l,file,c).real }
+				puts "#{a},#{f},#{c},#{results.average},#{results.stdev}"
+			end
 		end
 	end
 end			
@@ -62,15 +68,17 @@ def test3(n,l,file)
 # in this test we take the most scalable algorithm and test it
 # over all fork and core combinations, in order to find the
 # speedup and efficiency
-	algorithms = 
+	algo = "stm"
 	forks = [1,2,4,8]
-	cores = [1,2,4,8]
+#	cores = [2,4,8,12]
+	cores = [6,10,14]
 
+	#puts "algorithm,forks,cores,time,stdev"
 	cores.each do |c|
 		forks.each do |f|
 			results = []
-			n.times { results << run_main(f,a,l,file,c) }
-			puts "#{a},#{f},1,#{results.average},#{results.stdev}"
+			n.times { results << run_test(f,algo,l,file,c).real }
+			puts "#{algo},#{f},#{c},#{results.average},#{results.stdev}"
 		end
 	end
 end			
@@ -78,4 +86,4 @@ end
 ## main ##
 #
 file = "Data/aps_ref_Acyr_2.0_chrMT.fa"
-test1(1,8,file)
+test3(4,8,file)
