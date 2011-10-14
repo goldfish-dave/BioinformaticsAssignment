@@ -1,11 +1,12 @@
 \documentclass{bioinfo}
+\usepackage{url}
 \copyrightyear{2011}
 \pubyear{2011}
 
 \begin{document}
 \firstpage{1}
 
-\title[Parallel Motif Finding]{Search for Superlinear Parallel Motif Finding Using Software Transactional Memory}
+\title[Parallel Motif Finding]{Search for Superlinear Parallelism in Motif Finding Using Software Transactional Memory}
 \author[D. G. Wilcox]{David G. Wilcox}
 \address{University of Sydney, Student Department}
 
@@ -18,11 +19,13 @@
 \begin{abstract}
 
 \section{Motivation:}
-It is not necessary to argue the importance of parallel programming for the future of computer science. That said, the phenomenon known as super linear speedup, where the speed of the program is increased by more than the number of additional cores it runs on, was the icing on the cake.
+It is not necessary to argue the importance of parallel programming for the future of computer science. That said, the phenomenon known as super linear speedup, where the speed of the program is increased by more than the number of additional cpu cores it runs on, was the icing on the cake. Additionally there was a large focus on scaling the simplicity of the code inspite of the sophisticated concepts used.
 
 \section{Results:}
+For the test data used, and the combinations of fork/core, superlinear speedup was detected in a "sweetspot" when using 4-8 forks/core and 8-10 cores total. Other combinations either fell in the range of providing a sub-linear speedup or a loss in speed due to overhead costs. Typically using more cores or forks/core than the sweetspot resulted in a loss to overhead, and less was a sub-linear speedup. Although the observations made are not in doubt, there is a significant lack in precision, obstructing a deeper investigation into the phenomenon.
 
 \section{Availability:}
+The implementation was in Haskell, which possesses many free and open source compilers (GHC with the Haskell Platform is the suggested). Testing scripts and benchmarking was done in Ruby, also free and open source. The entirety of the project is hosted on github at \url{https://github.com/goldfish-dave/BioinformaticsAssignment}.
 
 \section{Contact:} \href{dwil5124@uni.sydney.edu.au}{dwil5124@uni.sydney.edu.au}
 \end{abstract}
