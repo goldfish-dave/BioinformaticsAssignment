@@ -32,16 +32,17 @@ The implementation was in Haskell, which possesses many free and open source com
 
 \section{Introduction}
 
+There were three main goals in writing this paper. They were exploiting multiple cores to get a speed increase, choosing an interesting example where superlinear speedup could be observed and not sacrificing elegance, composability or simplicity in achieving these goals.
+
+Before I go any further it is important to define superlinear speedup. In a parallel program, if we split the work evenly over all the available cores then, ignoring overhead costs in organising the process, the most we could expect of our program is that for $n$ cores we get a speedup factor of $n$ (e.g. 2 cores results in half the runtime). In this event we would have an efficiency of $100\%$. A superlinear speedup is defined as having an efficiency greater than $100\%$.
+
+How can this be possible? The first thing to admit is that it is not always possible; there is a dependance on the way the data is structued. That is, the actions of one core must have a positive effect (decrease in runtime) on the actions of another core. The simplest example of this is in a branch and bound tree search. If one core finds a superior cut-off value and shares it with the other cores, then all cores will benefit from the actions of the one.
+
+It is for this reason that the motif finding algorithm, Median String Search, was chosen for investigation.
+
+As an aside, there are other possible causes for a superlinear speedup involving tier memory, but that hardware related phenomenon will not be investigated in this software based report.
+
 Text Text Text Text Text Text  Text Text Text Text Text Text Text Text Text  Text Text Text Text Text Text. Figure~\ref{fig:01} shows that the above method  Text Text Text Text  Text Text Text Text Text Text  Text Text.  \citep{Bag01} wants to know about …… text follows.
-
-\begin{equation}
-\sum x+ y =Z\label{eq:01}
-\end{equation}
-
-
-
-
-
 
 \section{Approach}
 
