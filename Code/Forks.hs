@@ -10,17 +10,25 @@ import Control.Concurrent.STM
 ----------------------------------------------------
 -- Code Clarity
 --
-type ForkRegister = ([ThreadId],Int)
+--type ForkRegister = ([ThreadId],Int)
+type ForkRegister = Int
 
-emptyRegister = ([],0) :: ForkRegister
+--emptyRegister = ([],0) :: ForkRegister
+emptyRegister = 0 :: ForkRegister
 
 type ForkSwitch = Bool
 
-addFork :: ForkRegister -> ThreadId -> ForkRegister
-addFork (ids,n) id = (id:ids,n+1)
+--addFork :: ForkRegister -> ThreadId -> ForkRegister
+addFork :: ForkRegister -> ForkRegister
+--addFork (ids,n) id = (id:ids,n+1)
+addFork n = n+1
 
+{-
 dropFork :: ForkRegister -> ThreadId -> ForkRegister
 dropFork (ids,n) id = (delete id ids,n-1)
+-}
+dropFork :: ForkRegister -> ForkRegister
+dropFork n = n-1
 
 ---------------------------------------------------
 -- Forking stuff
@@ -29,19 +37,19 @@ dropFork (ids,n) id = (delete id ids,n-1)
 toggleLockingFork :: MVar ForkRegister -> ForkSwitch -> IO ()
 toggleLockingFork mvar on = do
 	register <- takeMVar mvar
-	thisId <- myThreadId
+	--thisId <- myThreadId
 	if on
-		then putMVar mvar $ addFork  register thisId
-		else putMVar mvar $ dropFork register thisId
+		then putMVar mvar $ addFork  register --thisId
+		else putMVar mvar $ dropFork register --thisId
 
 toggleSTMFork :: TVar ForkRegister -> ForkSwitch -> IO ()
 toggleSTMFork tvar on = do
-	thisId <- myThreadId
+	--thisId <- myThreadId
 	atomically $ do
 		register <- readTVar tvar
 		if on
-			then writeTVar tvar $ addFork  register thisId
-			else writeTVar tvar $ dropFork register thisId
+			then writeTVar tvar $ addFork  register --thisId
+			else writeTVar tvar $ dropFork register --thisId
 
 
 maybeFork :: MVar ForkRegister -> Int -> IO () -> IO ()
@@ -49,14 +57,16 @@ maybeFork :: MVar ForkRegister -> Int -> IO () -> IO ()
 -- the number of forks represented in cap is 
 -- greater than forkCap
 maybeFork reg forkCap io = do
-	(_,forksCount) <- readMVar reg
+	--(_,forksCount) <- readMVar reg
+	forksCount <- readMVar reg
 	if forksCount < forkCap
 		then (forkIO $ toggleLockingFork reg True >> io >> toggleLockingFork reg False) >> return ()
 		else io
 
 maybeSTMFork :: TVar ForkRegister -> Int -> IO () -> IO ()
 maybeSTMFork reg forkCap io = do
-	(_,forksCount) <- atomically $ readTVar reg
+	--(_,forksCount) <- atomically $ readTVar reg
+	forksCount <- atomically $ readTVar reg
 	if forksCount < forkCap
 		then (forkIO $ toggleSTMFork reg True >> io >> toggleSTMFork reg False) >> return ()
 		else io
